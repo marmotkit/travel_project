@@ -56,7 +56,7 @@ const TripItem: React.FC<TripItemProps> = ({ trip, onDelete }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
       <div className="p-6">
         <div className="flex justify-between items-start mb-3">
           <h3 className="text-xl font-bold text-gray-800">{trip.title}</h3>
@@ -78,21 +78,33 @@ const TripItem: React.FC<TripItemProps> = ({ trip, onDelete }) => {
         <div className="flex justify-between items-center mt-4">
           <Link 
             to={`/trips/${trip.id}`}
-            className="text-blue-500 hover:text-blue-700 font-medium"
+            className="text-blue-500 hover:text-blue-700 font-medium flex items-center"
           >
-            查看詳情
+            <span>查看詳情</span>
+            <i className="fas fa-chevron-right ml-1 text-sm"></i>
           </Link>
           
           <div className="flex space-x-2">
             <Link 
               to={`/trips/${trip.id}/edit`}
               className="p-2 rounded-full text-gray-500 hover:text-blue-500 hover:bg-blue-50"
+              aria-label="編輯"
+              title="編輯"
             >
               <i className="fas fa-edit"></i>
             </Link>
             <button 
-              onClick={() => onDelete(trip.id)}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                if (window.confirm('確定要刪除這個旅程嗎？此操作無法復原。')) {
+                  onDelete(trip.id);
+                }
+              }}
               className="p-2 rounded-full text-gray-500 hover:text-red-500 hover:bg-red-50"
+              aria-label="刪除"
+              title="刪除"
             >
               <i className="fas fa-trash-alt"></i>
             </button>

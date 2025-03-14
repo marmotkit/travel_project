@@ -1,46 +1,107 @@
-# Getting Started with Create React App
+# 旅行計劃系統
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+這是一個基於 React 和 TypeScript 開發的旅行計劃管理應用程式，幫助用戶管理、組織和追蹤他們的旅行專案。
 
-## Available Scripts
+## 系統功能
 
-In the project directory, you can run:
+### 使用者管理
+- **登入與權限控制**：基本的使用者登入功能，支援管理員與一般使用者角色區分
+- **權限管理**：管理員可以切換管理模式，進行更多權限操作
 
-### `npm start`
+### 旅程管理
+- **旅程列表**：檢視所有旅程，包含標題、目的地、日期和狀態
+- **旅程篩選**：按照旅程狀態（即將到來、進行中、已完成、已取消）進行篩選
+- **旅程搜尋**：根據旅程標題和目的地進行關鍵字搜尋
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### 旅程詳情
+- **詳細資訊**：顯示旅程的完整資訊，包括描述、預算、類別等
+- **參與者管理**：查看參與旅程的所有人員及其聯絡資訊
+- **編輯與刪除**：支援編輯現有旅程或刪除不需要的旅程
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+### 旅程表單
+- **創建新旅程**：填寫完整的旅程資訊，包括標題、目的地、日期等必要欄位
+- **編輯旅程**：修改已存在的旅程資訊
+- **參與者添加/移除**：管理旅程的參與人員
+- **類別選擇**：從多個預設類別中選擇旅程類型
 
-### `npm test`
+### 儀表板
+- **總覽視圖**：概述所有旅程狀態和即將到來的旅行
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 技術組件
 
-### `npm run build`
+- **前端框架**：React 18
+- **程式語言**：TypeScript
+- **路由管理**：React Router v6
+- **狀態管理**：React Hooks (useState, useEffect)
+- **樣式框架**：Tailwind CSS
+- **數據存儲**：localStorage（客戶端本地存儲）
+- **圖標庫**：Font Awesome
+- **唯一識別碼**：UUID
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 目前進度
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### 已完成功能
+- ✅ 使用者登入/驗證系統
+- ✅ 旅程列表頁面，支援搜尋和篩選功能
+- ✅ 旅程詳情頁面，展示完整的旅程資訊
+- ✅ 旅程表單，用於創建和編輯旅程
+- ✅ 參與者管理系統
+- ✅ 類別選擇功能
+- ✅ 本地數據持久化
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### 待開發功能
+- ⬜ 後端 API 整合，替代 localStorage
+- ⬜ 用戶註冊功能
+- ⬜ 旅程行程規劃功能
+- ⬜ 照片上傳和管理
+- ⬜ 地圖整合
+- ⬜ 預算跟踪和分析
+- ⬜ 消息通知系統
 
-### `npm run eject`
+## 安裝與運行
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### 前置需求
+- Node.js (v14.0.0 或更高版本)
+- npm (v6.0.0 或更高版本)
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### 安裝步驟
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+```bash
+# 克隆儲存庫
+git clone https://github.com/your-username/travel-plan.git
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+# 切換到專案目錄
+cd travel-plan
 
-## Learn More
+# 安裝依賴
+npm install
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+# 啟動開發伺服器
+npm start
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+開發伺服器啟動後，打開瀏覽器訪問 [http://localhost:3000](http://localhost:3000) 即可查看應用程式。
+
+### 構建生產版本
+
+```bash
+# 構建應用程式
+npm run build
+```
+
+構建後的文件將位於 `build` 目錄中，可以部署到任何靜態文件服務器。
+
+## 版本資訊
+
+- **v1.1.2**：修復表單頁面的類型錯誤，優化路由配置，完成基本功能開發
+- **v1.1.1**：添加旅程詳情頁面，優化數據流
+- **v1.1.0**：實現旅程表單、添加和編輯功能
+- **v1.0.0**：初始版本，基本旅程列表和用戶驗證
+
+## 貢獻指南
+
+歡迎提交 Pull Request 和 Issue。請確保您的代碼符合專案的編碼規範，並添加適當的測試。
+
+## 授權
+
+本專案採用 MIT 授權 - 詳見 LICENSE 文件
