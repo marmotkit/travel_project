@@ -18,6 +18,7 @@ interface User {
   address?: string;
   bio?: string;
   password?: string;
+  loginCount?: number;
 }
 
 const UserForm: React.FC = () => {

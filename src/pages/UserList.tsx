@@ -12,6 +12,7 @@ interface User {
   status: 'active' | 'inactive';
   createdAt: string;
   lastLogin?: string;
+  loginCount?: number;
 }
 
 const UserList: React.FC = () => {

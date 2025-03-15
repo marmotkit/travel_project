@@ -16,6 +16,7 @@ interface User {
   avatar?: string;
   address?: string;
   bio?: string;
+  loginCount?: number;
 }
 
 const Profile: React.FC = () => {

@@ -17,6 +17,7 @@ interface User {
   address?: string;
   bio?: string;
   password?: string;
+  loginCount?: number;
 }
 
 interface Trip {
@@ -500,7 +501,7 @@ const UserDetail: React.FC = () => {
                       </div>
                       <div className="flex justify-between">
                         <span>登入次數</span>
-                        <span className="text-gray-500">12 次</span>
+                        <span className="text-gray-500">{user.loginCount || 0} 次</span>
                       </div>
                     </div>
                   </div>

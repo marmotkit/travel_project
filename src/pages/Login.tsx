@@ -11,6 +11,7 @@ interface User {
   createdAt: string;
   lastLogin?: string;
   password?: string;
+  loginCount?: number;
 }
 
 const Login: React.FC = () => {
@@ -56,7 +57,8 @@ const Login: React.FC = () => {
           status: 'active',
           password: 'password123',
           createdAt: '2023-01-10T00:00:00.000Z',
-          lastLogin: '2023-03-14T09:15:00.000Z'
+          lastLogin: '2023-03-14T09:15:00.000Z',
+          loginCount: 8
         },
         {
           id: '3',
@@ -67,7 +69,8 @@ const Login: React.FC = () => {
           status: 'active',
           password: 'wang123',
           createdAt: '2023-02-05T00:00:00.000Z',
-          lastLogin: '2023-03-10T14:20:00.000Z'
+          lastLogin: '2023-03-10T14:20:00.000Z',
+          loginCount: 5
         },
         {
           id: '4',
@@ -78,7 +81,8 @@ const Login: React.FC = () => {
           status: 'inactive',
           password: 'zhang123',
           createdAt: '2023-02-15T00:00:00.000Z',
-          lastLogin: '2023-02-28T11:45:00.000Z'
+          lastLogin: '2023-02-28T11:45:00.000Z',
+          loginCount: 3
         },
         {
           id: '5',
@@ -89,7 +93,8 @@ const Login: React.FC = () => {
           status: 'active',
           password: 'liu123',
           createdAt: '2023-03-01T00:00:00.000Z',
-          lastLogin: '2023-03-12T16:30:00.000Z'
+          lastLogin: '2023-03-12T16:30:00.000Z',
+          loginCount: 6
         }
       ];
       localStorage.setItem('users', JSON.stringify(mockUsers));
@@ -119,7 +124,8 @@ const Login: React.FC = () => {
             status: 'active',
             password: testPassword,
             createdAt: '2023-01-10T00:00:00.000Z',
-            lastLogin: new Date().toISOString()
+            lastLogin: new Date().toISOString(),
+            loginCount: 1
           }
         ];
         localStorage.setItem('users', JSON.stringify(mockUsers));
@@ -135,7 +141,8 @@ const Login: React.FC = () => {
             role: 'admin',
             status: 'active',
             isAdmin: true,
-            lastLogin: new Date().toISOString()
+            lastLogin: new Date().toISOString(),
+            loginCount: 1
           }));
           
           navigate('/dashboard');
@@ -174,7 +181,8 @@ const Login: React.FC = () => {
           if (user.email.toLowerCase() === trimmedEmail.toLowerCase()) {
             return {
               ...user,
-              lastLogin: new Date().toISOString()
+              lastLogin: new Date().toISOString(),
+              loginCount: (user.loginCount || 0) + 1
             };
           }
           return user;
@@ -186,6 +194,7 @@ const Login: React.FC = () => {
         localStorage.setItem('user', JSON.stringify({
           ...foundUser,
           lastLogin: new Date().toISOString(),
+          loginCount: (foundUser.loginCount || 0) + 1,
           isAdmin: foundUser.role === 'admin'
         }));
         
