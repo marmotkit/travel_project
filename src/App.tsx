@@ -6,6 +6,10 @@ import Dashboard from './pages/Dashboard';
 import Trips from './pages/Trips';
 import TripDetail from './pages/TripDetail';
 import TripForm from './pages/TripForm';
+import UserList from './pages/UserList';
+import UserDetail from './pages/UserDetail';
+import UserForm from './pages/UserForm';
+import Profile from './pages/Profile';
 
 // 路由保護組件
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -17,6 +21,29 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
   
   return <>{children}</>;
+};
+
+// 管理員路由保護組件
+const AdminRoute = ({ children }: { children: React.ReactNode }) => {
+  const userStr = localStorage.getItem('user');
+  
+  if (!userStr) {
+    // 用戶未登入，重定向到登入頁面
+    return <Navigate to="/login" replace />;
+  }
+  
+  try {
+    const user = JSON.parse(userStr);
+    if (!user.isAdmin) {
+      // 非管理員用戶，重定向到儀表板頁面
+      return <Navigate to="/dashboard" replace />;
+    }
+    
+    return <>{children}</>;
+  } catch (err) {
+    // 解析出錯，視為未登入
+    return <Navigate to="/login" replace />;
+  }
 };
 
 function App() {
@@ -103,6 +130,38 @@ function App() {
         <Route path="/trips/:id" element={
           <ProtectedRoute>
             <TripDetail />
+          </ProtectedRoute>
+        } />
+        
+        {/* 用戶管理路由 */}
+        <Route path="/admin/users" element={
+          <AdminRoute>
+            <UserList />
+          </AdminRoute>
+        } />
+        
+        <Route path="/admin/users/new" element={
+          <AdminRoute>
+            <UserForm />
+          </AdminRoute>
+        } />
+        
+        <Route path="/admin/users/:id/edit" element={
+          <AdminRoute>
+            <UserForm />
+          </AdminRoute>
+        } />
+        
+        <Route path="/admin/users/:id" element={
+          <AdminRoute>
+            <UserDetail />
+          </AdminRoute>
+        } />
+        
+        {/* 個人資料路由 */}
+        <Route path="/profile" element={
+          <ProtectedRoute>
+            <Profile />
           </ProtectedRoute>
         } />
         

@@ -76,7 +76,6 @@ const Dashboard: React.FC = () => {
           title="個人儀表板" 
           isAdmin={isAdmin} 
           onToggleAdmin={toggleAdminMode} 
-          userName={userData.name}
         />
         
         <main className="p-6">
@@ -98,26 +97,63 @@ const Dashboard: React.FC = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <TripStats 
-              upcomingTrips={userData.upcomingTrips}
-              totalTrips={userData.totalTrips}
-              photos={userData.photos}
-              expenses={userData.expenses}
+              title="近期旅程"
+              value={userData.upcomingTrips.toString()}
+              icon="calendar-alt"
+              color="bg-blue-500"
+            />
+            <TripStats 
+              title="總旅程數"
+              value={userData.totalTrips.toString()}
+              icon="suitcase"
+              color="bg-green-500"
+            />
+            <TripStats 
+              title="總花費"
+              value={userData.expenses}
+              icon="dollar-sign"
+              color="bg-purple-500"
             />
           </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <UpcomingTrips />
-            <RecentActivities />
-          </div>
-          
-          <div className="mt-6">
-            <Link
-              to="/trips/new"
-              className="inline-block bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-md"
-            >
-              <i className="fas fa-plus mr-2"></i>
-              建立新旅程
-            </Link>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="md:col-span-3">
+              <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <h3 className="text-lg font-bold mb-4">即將到來的旅程</h3>
+                <UpcomingTrips />
+              </div>
+              
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <h3 className="text-lg font-bold mb-4">近期活動</h3>
+                <RecentActivities />
+              </div>
+            </div>
+            
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <h3 className="text-lg font-bold mb-4">旅遊事項提醒</h3>
+              <div className="space-y-4">
+                <div className="p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+                  <h4 className="font-medium">日本東京之旅</h4>
+                  <p className="text-sm text-gray-600">
+                    出發前記得辦理日本旅遊保險。截止日期: 2023/12/01
+                  </p>
+                </div>
+                
+                <div className="p-4 bg-blue-50 border-l-4 border-blue-400 rounded">
+                  <h4 className="font-medium">歐洲多國行</h4>
+                  <p className="text-sm text-gray-600">
+                    3個月內需申請申根簽證。截止日期: 2024/01/15
+                  </p>
+                </div>
+                
+                <div className="p-4 bg-green-50 border-l-4 border-green-400 rounded">
+                  <h4 className="font-medium">台南美食之旅</h4>
+                  <p className="text-sm text-gray-600">
+                    訂房即將到期，請確認。截止日期: 今天
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </main>
       </div>
