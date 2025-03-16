@@ -1,77 +1,127 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Menu } from 'antd';
+import type { MenuProps } from 'antd';
+import { useNavigate, useLocation } from 'react-router-dom';
+import {
+  DashboardOutlined,
+  ProjectOutlined,
+  EnvironmentOutlined,
+  CarOutlined,
+  HomeOutlined,
+  CoffeeOutlined,
+  IdcardOutlined,
+  WalletOutlined,
+  PictureOutlined,
+  ExclamationCircleOutlined,
+  SettingOutlined,
+  TeamOutlined,
+  BarChartOutlined
+} from '@ant-design/icons';
 
 interface SideMenuProps {
   isAdmin: boolean;
 }
 
+type MenuItem = Required<MenuProps>['items'][number];
+
 const SideMenu: React.FC<SideMenuProps> = ({ isAdmin }) => {
+  const navigate = useNavigate();
   const location = useLocation();
-  
-  const menuItems = [
-    { path: '/dashboard', icon: 'fa-tachometer-alt', label: '儀表板' },
-    { path: '/trips', icon: 'fa-suitcase', label: '旅遊專案' },
-    { path: '/itinerary', icon: 'fa-map-marked-alt', label: '行程管理' },
-    { path: '/transportation', icon: 'fa-plane', label: '交通管理' },
-    { path: '/accommodation', icon: 'fa-bed', label: '住宿管理' },
-    { path: '/meals', icon: 'fa-utensils', label: '餐飲管理' },
-    { path: '/documents', icon: 'fa-passport', label: '證件管理' },
-    { path: '/budgets', icon: 'fa-calculator', label: '預算管理' },
-    { path: '/photos', icon: 'fa-images', label: '旅遊照片' },
-    { path: '/notes', icon: 'fa-sticky-note', label: '注意事項' },
+
+  const menuItems: MenuItem[] = [
+    {
+      key: '/dashboard',
+      icon: <DashboardOutlined />,
+      label: '儀表板',
+    },
+    {
+      key: '/trips',
+      icon: <ProjectOutlined />,
+      label: '旅遊專案',
+    },
+    {
+      key: '/itinerary',
+      icon: <EnvironmentOutlined />,
+      label: '行程管理',
+    },
+    {
+      key: '/transportation',
+      icon: <CarOutlined />,
+      label: '交通管理',
+    },
+    {
+      key: '/accommodation',
+      icon: <HomeOutlined />,
+      label: '住宿管理',
+    },
+    {
+      key: '/meals',
+      icon: <CoffeeOutlined />,
+      label: '餐飲管理',
+    },
+    {
+      key: '/documents',
+      icon: <IdcardOutlined />,
+      label: '證件管理',
+    },
+    {
+      key: '/budgets',
+      icon: <WalletOutlined />,
+      label: '預算管理',
+    },
+    {
+      key: '/moments',
+      icon: <PictureOutlined />,
+      label: '旅遊花絮',
+    },
+    {
+      key: '/notes',
+      icon: <ExclamationCircleOutlined />,
+      label: '注意事項',
+    }
   ];
-  
-  const adminMenuItems = [
-    { path: '/admin/users', icon: 'fa-users', label: '用戶管理' },
-    { path: '/admin/reports', icon: 'fa-chart-bar', label: '報表分析' },
-    { path: '/admin/settings', icon: 'fa-cogs', label: '系統設定' },
+
+  const adminItems: MenuItem[] = [
+    { type: 'divider' },
+    {
+      key: 'admin',
+      label: '管理者功能',
+      type: 'group',
+      children: [
+        {
+          key: '/users',
+          icon: <TeamOutlined />,
+          label: '用戶管理',
+        },
+        {
+          key: '/settings',
+          icon: <SettingOutlined />,
+          label: '系統設定',
+        },
+        {
+          key: '/analytics',
+          icon: <BarChartOutlined />,
+          label: '報表分析',
+        },
+      ],
+    },
   ];
 
   return (
-    <aside className="w-64 bg-gray-800 text-white h-screen overflow-y-auto hidden md:block">
-      <div className="p-6">
-        <h1 className="text-xl font-bold">旅遊管理系統</h1>
-      </div>
-      
-      <nav className="mt-6">
-        <ul>
-          {menuItems.map((item) => (
-            <li key={item.path} className="px-6 py-3">
-              <Link
-                to={item.path}
-                className={`flex items-center ${
-                  location.pathname.startsWith(item.path) ? 'text-blue-400' : 'text-gray-300'
-                } hover:text-white transition-colors duration-200`}
-              >
-                <i className={`fas ${item.icon} w-5 text-center mr-3`}></i>
-                <span>{item.label}</span>
-              </Link>
-            </li>
-          ))}
-          
-          {isAdmin && (
-            <>
-              <li className="px-6 py-3 mt-4 border-t border-gray-700">
-                <span className="text-gray-500 text-sm">管理員功能</span>
-              </li>
-              {adminMenuItems.map((item) => (
-                <li key={item.path} className="px-6 py-3">
-                  <Link
-                    to={item.path}
-                    className={`flex items-center ${
-                      location.pathname.startsWith(item.path) ? 'text-blue-400' : 'text-gray-300'
-                    } hover:text-white transition-colors duration-200`}
-                  >
-                    <i className={`fas ${item.icon} w-5 text-center mr-3`}></i>
-                    <span>{item.label}</span>
-                  </Link>
-                </li>
-              ))}
-            </>
-          )}
-        </ul>
-      </nav>
-    </aside>
+    <div className="w-64 h-screen bg-[#001529] flex-shrink-0">
+      <Menu
+        mode="inline"
+        selectedKeys={[location.pathname]}
+        defaultOpenKeys={['admin']}
+        style={{ 
+          height: '100%',
+          borderRight: 0
+        }}
+        theme="dark"
+        items={[...menuItems, ...(isAdmin ? adminItems : [])]}
+        onClick={({ key }) => navigate(key)}
+      />
+    </div>
   );
 };
 

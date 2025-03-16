@@ -29,6 +29,8 @@ import BudgetForm from './pages/BudgetForm';
 import ExpenseForm from './pages/ExpenseForm';
 import ExpenseList from './pages/ExpenseList';
 import BudgetAnalysis from './pages/BudgetAnalysis';
+import TravelMoments from './pages/TravelMoments';
+import MomentAlbum from './pages/MomentAlbum';
 
 // 路由保護組件
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -516,6 +518,22 @@ function App() {
             <ExpenseForm />
           </ProtectedRoute>
         } />
+        
+        {/* 旅遊花絮路由 */}
+        <Route path="/moments" element={
+          <ProtectedRoute>
+            <TravelMoments />
+          </ProtectedRoute>
+        } />
+        <Route path="/moments/album/:albumId" element={
+          <ProtectedRoute>
+            <MomentAlbum />
+          </ProtectedRoute>
+        } />
+        
+        {/* 舊的照片路由重定向到新的花絮路由 */}
+        <Route path="/photos" element={<Navigate replace to="/moments" />} />
+        <Route path="/photos/*" element={<Navigate replace to="/moments" />} />
         
         {/* 默認路由 */}
         <Route path="/" element={<Navigate replace to="/login" />} />

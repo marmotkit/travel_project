@@ -586,55 +586,58 @@ const Meal: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex h-screen overflow-hidden">
       <SideMenu isAdmin={isAdmin} />
-      <div className="flex-1">
+      <div className="flex-1 flex flex-col overflow-hidden">
         <Header title="餐飲管理" isAdmin={isAdmin} onToggleAdmin={() => setIsAdmin(!isAdmin)} />
-        <main className="p-6">
-          {isLoading ? (
-            <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-            </div>
-          ) : (
-            <>
-              {/* 旅程選擇下拉框 */}
-              <div className="mb-6">
-                <h2 className="text-xl font-semibold text-gray-800 mb-4">旅程</h2>
-                <select
-                  className="w-full p-3 border border-gray-300 rounded-md"
-                  value={selectedTripId}
-                  onChange={handleTripChange}
-                >
-                  {trips.length === 0 ? (
-                    <option value="">暫無旅程</option>
-                  ) : (
-                    trips.map(trip => (
-                      <option key={trip.id} value={trip.id}>
-                        {trip.title} ({formatDate(trip.startDate)} - {formatDate(trip.endDate)})
-                      </option>
-                    ))
-                  )}
-                </select>
+        <div className="flex-1 overflow-y-auto bg-gray-50">
+          <div className="container mx-auto px-4 py-6">
+            {isLoading ? (
+              <div className="flex justify-center items-center h-64">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
               </div>
-              
-              {selectedTripId && (
-                <>
-                  {/* 未分配餐飲添加按鈕 */}
-                  {renderAddUnassignedButton()}
-                  
-                  {/* 未分配的餐飲 */}
-                  {renderUnassignedMeals()}
-                  
-                  {/* 按行程日分組的餐飲 */}
-                  {renderMealsByDay()}
-                </>
-              )}
-              
-              {/* 刪除確認模態框 */}
-              {renderDeleteModal()}
-            </>
-          )}
-        </main>
+            ) : (
+              <>
+                {/* 旅程選擇下拉框 */}
+                <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+                  <h2 className="text-xl font-semibold text-gray-800 mb-4">旅程</h2>
+                  <select
+                    className="w-full p-3 border border-gray-300 rounded-md"
+                    value={selectedTripId}
+                    onChange={handleTripChange}
+                  >
+                    <option value="">請選擇旅程</option>
+                    {trips.length === 0 ? (
+                      <option value="" disabled>暫無旅程</option>
+                    ) : (
+                      trips.map(trip => (
+                        <option key={trip.id} value={trip.id}>
+                          {trip.title} ({formatDate(trip.startDate)} - {formatDate(trip.endDate)})
+                        </option>
+                      ))
+                    )}
+                  </select>
+                </div>
+                
+                {selectedTripId && (
+                  <>
+                    {/* 未分配餐飲添加按鈕 */}
+                    {renderAddUnassignedButton()}
+                    
+                    {/* 未分配的餐飲 */}
+                    {renderUnassignedMeals()}
+                    
+                    {/* 按行程日分組的餐飲 */}
+                    {renderMealsByDay()}
+                  </>
+                )}
+                
+                {/* 刪除確認模態框 */}
+                {renderDeleteModal()}
+              </>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
