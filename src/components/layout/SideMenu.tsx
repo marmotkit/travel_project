@@ -89,7 +89,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ isAdmin }) => {
       type: 'group',
       children: [
         {
-          key: '/users',
+          key: '/admin/users',
           icon: <TeamOutlined />,
           label: '用戶管理',
         },
