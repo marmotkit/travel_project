@@ -31,6 +31,9 @@ import ExpenseList from './pages/ExpenseList';
 import BudgetAnalysis from './pages/BudgetAnalysis';
 import TravelMoments from './pages/TravelMoments';
 import MomentAlbum from './pages/MomentAlbum';
+import TravelNotes from './pages/TravelNotes';
+import TravelNoteForm from './pages/TravelNoteForm';
+import TravelNoteDetail from './pages/TravelNoteDetail';
 
 // 路由保護組件
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -69,222 +72,193 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
 
 function App() {
   useEffect(() => {
-    // 初始化默認旅程數據（如果不存在）
-    const trips = localStorage.getItem('trips');
-    if (!trips) {
-      const defaultTrips = [
-        {
+    // 初始化應用程序數據
+    const initializeAppData = () => {
+      // 用戶數據初始化
+      if (!localStorage.getItem('user')) {
+        const defaultUser = {
           id: '1',
-          title: '東京五日遊',
-          destination: '日本東京',
-          startDate: '2023-12-15',
-          endDate: '2023-12-20',
-          status: 'upcoming',
-          description: '期待已久的東京旅行，將會參觀多個景點並體驗當地美食。',
-          budget: 50000,
-          currency: 'TWD',
-          categories: ['leisure', 'cultural', 'food'],
-          participants: [
-            { id: '101', name: '王小明', email: 'wang@example.com' },
-            { id: '102', name: '李小華', email: 'lee@example.com' }
-          ],
-          notes: '記得帶轉接頭和保暖衣物',
+          name: '測試用戶',
+          email: 'user@example.com',
+          password: 'password',
+          isAdmin: true,
+          avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
+          phone: '0912-345-678',
           createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        },
-        {
-          id: '2',
-          title: '台南三日遊',
-          destination: '台灣台南',
-          startDate: '2023-11-10',
-          endDate: '2023-11-12',
-          status: 'completed',
-          description: '短暫的台南小旅行，主要是品嚐美食和參觀歷史景點。',
-          budget: 8000,
-          currency: 'TWD',
-          categories: ['leisure', 'food'],
-          participants: [
-            { id: '201', name: '張小美', email: 'mei@example.com' }
-          ],
-          notes: '安平古堡、赤崁樓必去',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        }
-      ];
-      
-      localStorage.setItem('trips', JSON.stringify(defaultTrips));
-    }
-    
-    // 初始化默認行程數據（如果不存在）
-    const itinerary = localStorage.getItem('itinerary');
-    if (!itinerary) {
-      const defaultItinerary = [
-        {
-          id: '1',
-          tripId: '1', // 關聯到東京五日遊
-          date: '2023-12-15',
-          dayNumber: 1,
-          title: '抵達東京/成田機場',
-          description: '抵達東京，辦理入住手續，探索酒店周邊。',
-          activities: [
-            {
-              id: '101',
-              startTime: '14:00',
-              endTime: '15:30',
-              title: '成田機場抵達',
-              description: '抵達成田機場，領取行李並辦理入境手續',
-              location: '成田國際機場',
-              address: '千葉縣成田市',
-              category: 'transportation'
-            },
-            {
-              id: '102',
-              startTime: '16:00',
-              endTime: '17:30',
-              title: '前往酒店',
-              description: '乘坐機場巴士前往東京市區酒店',
-              location: '成田機場 → 東京市區',
-              cost: 3000,
-              currency: 'JPY',
-              category: 'transportation'
-            },
-            {
-              id: '103',
-              startTime: '18:00',
-              endTime: '19:30',
-              title: '晚餐',
-              description: '在酒店附近的拉麵店享用晚餐',
-              location: '一蘭拉麵 新宿店',
-              address: '東京都新宿區歌舞伎町1-22-7',
-              cost: 1500,
-              currency: 'JPY',
-              category: 'meal',
-              notes: '人氣店可能需要排隊'
-            }
-          ],
-          accommodationId: 'a1',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        },
-        {
-          id: '2',
-          tripId: '1', // 關聯到東京五日遊
-          date: '2023-12-16',
-          dayNumber: 2,
-          title: '探索淺草和晴空塔',
-          description: '參觀淺草寺和東京晴空塔，體驗傳統與現代的東京。',
-          activities: [
-            {
-              id: '201',
-              startTime: '09:00',
-              endTime: '10:30',
-              title: '淺草寺',
-              description: '參觀東京最古老的寺廟',
-              location: '淺草寺',
-              address: '東京都台東區淺草2-3-1',
-              cost: 0,
-              currency: 'JPY',
-              category: 'sightseeing',
-              notes: '記得在雷門拍照'
-            },
-            {
-              id: '202',
-              startTime: '11:00',
-              endTime: '12:30',
-              title: '仲見世街',
-              description: '在淺草寺附近的傳統購物街逛街',
-              location: '仲見世街',
-              address: '東京都台東區淺草1-36',
-              category: 'activity'
-            }
-          ],
-          accommodationId: 'a1',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        }
-      ];
-      
-      localStorage.setItem('itinerary', JSON.stringify(defaultItinerary));
-    }
-    
-    // 初始化默認住宿數據（如果不存在）
-    const accommodations = localStorage.getItem('accommodations');
-    if (!accommodations) {
-      const defaultAccommodations = [
-        {
-          id: 'a1',
-          name: '東京新宿格拉斯麗酒店',
-          address: '東京都新宿區西新宿2-19-12',
-          checkIn: '15:00',
-          checkOut: '11:00',
-          price: 12000,
-          currency: 'JPY',
-          confirmationNumber: 'HT12345'
-        }
-      ];
-      
-      localStorage.setItem('accommodations', JSON.stringify(defaultAccommodations));
-    }
-    
-    // 初始化默認交通數據（如果不存在）
-    const transportations = localStorage.getItem('transportations');
-    if (!transportations) {
-      const defaultTransportations = [
-        {
-          id: 't1',
-          type: 'flight',
-          departureLocation: '台北桃園機場',
-          arrivalLocation: '東京成田機場',
-          departureTime: '2023-12-15T09:00:00.000Z',
-          arrivalTime: '2023-12-15T13:00:00.000Z',
-          referenceNumber: 'JL802',
-          price: 15000,
-          currency: 'TWD'
-        },
-        {
-          id: 't2',
-          type: 'flight',
-          departureLocation: '東京成田機場',
-          arrivalLocation: '台北桃園機場',
-          departureTime: '2023-12-20T14:00:00.000Z',
-          arrivalTime: '2023-12-20T17:00:00.000Z',
-          referenceNumber: 'JL805',
-          price: 15000,
-          currency: 'TWD'
-        }
-      ];
-      
-      localStorage.setItem('transportations', JSON.stringify(defaultTransportations));
-    }
-    
-    // 初始化默認餐飲數據（如果不存在）
-    const meals = localStorage.getItem('meals');
-    if (!meals) {
-      const defaultMeals = [
-        {
-          id: 'm1',
-          name: '壽司大',
-          location: '東京都新宿區歌舞伎町2-25-4',
-          time: '12:00',
-          type: 'lunch',
-          reservationInfo: '03-1234-5678',
-          price: 4000,
-          currency: 'JPY'
-        },
-        {
-          id: 'm2',
-          name: '燒肉王',
-          location: '東京都新宿區西新宿1-12-9',
-          time: '18:30',
-          type: 'dinner',
-          reservationInfo: '03-8765-4321',
-          price: 6000,
-          currency: 'JPY'
-        }
-      ];
-      
-      localStorage.setItem('meals', JSON.stringify(defaultMeals));
-    }
+        };
+        localStorage.setItem('user', JSON.stringify(defaultUser));
+      }
+
+      // 用戶列表初始化
+      if (!localStorage.getItem('users')) {
+        const defaultUsers = [
+          {
+            id: '1',
+            name: '測試用戶',
+            email: 'user@example.com',
+            password: 'password',
+            isAdmin: true,
+            avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
+            phone: '0912-345-678',
+            createdAt: new Date().toISOString(),
+          },
+          {
+            id: '2',
+            name: '張小明',
+            email: 'zhang@example.com',
+            password: 'password',
+            isAdmin: false,
+            avatar: 'https://randomuser.me/api/portraits/men/2.jpg',
+            phone: '0923-456-789',
+            createdAt: new Date().toISOString(),
+          },
+          {
+            id: '3',
+            name: '李小紅',
+            email: 'li@example.com',
+            password: 'password',
+            isAdmin: false,
+            avatar: 'https://randomuser.me/api/portraits/women/1.jpg',
+            phone: '0934-567-890',
+            createdAt: new Date().toISOString(),
+          },
+        ];
+        localStorage.setItem('users', JSON.stringify(defaultUsers));
+      }
+
+      // 旅行數據初始化
+      if (!localStorage.getItem('trips')) {
+        const defaultTrips = [
+          {
+            id: '1',
+            title: '東京五日遊',
+            description: '探索東京的現代與傳統，體驗日本文化',
+            destination: '日本東京',
+            startDate: '2023-08-15',
+            endDate: '2023-08-20',
+            status: 'upcoming',
+            coverImage: 'https://images.unsplash.com/photo-1536098561742-ca998e48cbcc',
+            members: ['1', '2'],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          {
+            id: '2',
+            title: '峇里島度假',
+            description: '在美麗的峇里島放鬆身心，享受陽光與海灘',
+            destination: '印尼峇里島',
+            startDate: '2023-09-10',
+            endDate: '2023-09-17',
+            status: 'upcoming',
+            coverImage: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4',
+            members: ['1', '3'],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          {
+            id: '3',
+            title: '台北週末行',
+            description: '短暫的台北之旅，品嚐美食，探索城市',
+            destination: '台灣台北',
+            startDate: '2023-06-02',
+            endDate: '2023-06-04',
+            status: 'completed',
+            coverImage: 'https://images.unsplash.com/photo-1517030330234-94c4fb948ebc',
+            members: ['1'],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+        ];
+        localStorage.setItem('trips', JSON.stringify(defaultTrips));
+      }
+
+      // 注意事項數據初始化
+      if (!localStorage.getItem('travelNotes')) {
+        const defaultNotes = [
+          {
+            id: '1',
+            tripId: '1',
+            title: '日本入境注意事項',
+            content: '1. 確保護照有效期至少6個月以上\n2. 準備好入境卡和海關申報表\n3. 攜帶旅行保險證明\n4. 注意日本的插座是雙孔扁插，電壓為110V',
+            category: 'documents',
+            priority: 'high',
+            stage: 'before-departure',
+            reminderDate: '2023-08-10',
+            attachments: [],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          {
+            id: '2',
+            tripId: '1',
+            title: '東京地鐵使用指南',
+            content: '1. 購買Suica或Pasmo卡更方便搭乘\n2. 避開早晨8-9點和晚上5-7點的尖峰時段\n3. 地鐵內保持安靜，不要通話\n4. 留意末班車時間，通常在晚上12點左右',
+            category: 'transportation',
+            priority: 'medium',
+            stage: 'during-trip',
+            reminderDate: null,
+            attachments: [],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          {
+            id: '3',
+            tripId: '2',
+            title: '峇里島健康注意事項',
+            content: '1. 攜帶防蚊液和防曬霜\n2. 避免飲用自來水，只喝瓶裝水\n3. 準備一些腹瀉和暈車藥物\n4. 在當地飲食要注意衛生',
+            category: 'health',
+            priority: 'high',
+            stage: 'before-departure',
+            reminderDate: '2023-09-05',
+            attachments: [],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          {
+            id: '4',
+            tripId: '2',
+            title: '峇里島文化禮儀',
+            content: '1. 進入寺廟時需穿著得體，覆蓋肩膀和膝蓋\n2. 用右手接受和給予物品\n3. 尊重當地的宗教儀式和傳統\n4. 與當地人交流時保持微笑和禮貌',
+            category: 'culture',
+            priority: 'medium',
+            stage: 'during-trip',
+            reminderDate: null,
+            attachments: [],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          {
+            id: '5',
+            tripId: '3',
+            title: '台北旅遊安全提示',
+            content: '1. 保管好個人財物，特別是在夜市等人多的地方\n2. 注意交通安全，過馬路時要走斑馬線\n3. 緊急情況撥打110（警察）或119（救護）\n4. 隨身攜帶酒店名片，以防迷路',
+            category: 'safety',
+            priority: 'low',
+            stage: 'before-departure',
+            reminderDate: '2023-06-01',
+            attachments: [],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          {
+            id: '6',
+            tripId: '1',
+            title: '返回前檢查清單',
+            content: '1. 確保所有購物收據已妥善保存（退稅用）\n2. 檢查所有房間，確保沒有遺留物品\n3. 兌換足夠當地貨幣用於機場交通\n4. 完成酒店結賬手續',
+            category: 'others',
+            priority: 'medium',
+            stage: 'before-return',
+            reminderDate: '2023-08-19',
+            attachments: [],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          }
+        ];
+        localStorage.setItem('travelNotes', JSON.stringify(defaultNotes));
+      }
+    };
+
+    initializeAppData();
   }, []);
 
   return (
@@ -528,6 +502,31 @@ function App() {
         <Route path="/moments/album/:albumId" element={
           <ProtectedRoute>
             <MomentAlbum />
+          </ProtectedRoute>
+        } />
+        
+        {/* 注意事項路由 */}
+        <Route path="/notes" element={
+          <ProtectedRoute>
+            <TravelNotes />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/notes/new" element={
+          <ProtectedRoute>
+            <TravelNoteForm />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/notes/:id" element={
+          <ProtectedRoute>
+            <TravelNoteDetail />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/notes/:id/edit" element={
+          <ProtectedRoute>
+            <TravelNoteForm />
           </ProtectedRoute>
         } />
         
