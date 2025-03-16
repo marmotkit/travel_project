@@ -34,6 +34,8 @@ import MomentAlbum from './pages/MomentAlbum';
 import TravelNotes from './pages/TravelNotes';
 import TravelNoteForm from './pages/TravelNoteForm';
 import TravelNoteDetail from './pages/TravelNoteDetail';
+import SystemSettings from './pages/SystemSettings';
+import { SettingsProvider } from './contexts/SettingsContext';
 
 // 路由保護組件
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -262,282 +264,291 @@ function App() {
   }, []);
 
   return (
-    <Router>
-      <Routes>
-        {/* 公開路由 */}
-        <Route path="/login" element={<Login />} />
-        
-        {/* 保護路由 */}
-        <Route path="/dashboard" element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/trips" element={
-          <ProtectedRoute>
-            <Trips />
-          </ProtectedRoute>
-        } />
-        
-        {/* 注意：特定路由需要放在參數路由之前，避免路由衝突 */}
-        <Route path="/trips/new" element={
-          <ProtectedRoute>
-            <TripForm />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/trips/:id/edit" element={
-          <ProtectedRoute>
-            <TripForm />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/trips/:id" element={
-          <ProtectedRoute>
-            <TripDetail />
-          </ProtectedRoute>
-        } />
-        
-        {/* 行程管理路由 */}
-        <Route path="/itinerary" element={
-          <ProtectedRoute>
-            <Itinerary />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/itinerary/day/new" element={
-          <ProtectedRoute>
-            <ItineraryDayForm />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/itinerary/day/:id/edit" element={
-          <ProtectedRoute>
-            <ItineraryDayForm />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/itinerary/day/:id" element={
-          <ProtectedRoute>
-            <ItineraryDayDetail />
-          </ProtectedRoute>
-        } />
-        
-        {/* 交通管理路由 */}
-        <Route path="/transportation" element={
-          <ProtectedRoute>
-            <Transportation />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/transportation/new" element={
-          <ProtectedRoute>
-            <TransportationForm />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/transportation/:id/edit" element={
-          <ProtectedRoute>
-            <TransportationForm />
-          </ProtectedRoute>
-        } />
-        
-        {/* 住宿管理路由 */}
-        <Route path="/accommodation" element={
-          <ProtectedRoute>
-            <Accommodation />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/accommodation/new" element={
-          <ProtectedRoute>
-            <AccommodationForm />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/accommodation/:id" element={
-          <ProtectedRoute>
-            <AccommodationDetail />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/accommodation/:id/edit" element={
-          <ProtectedRoute>
-            <AccommodationForm />
-          </ProtectedRoute>
-        } />
-        
-        {/* 餐飲管理路由 */}
-        <Route path="/meals" element={
-          <ProtectedRoute>
-            <Meal />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/meals/new" element={
-          <ProtectedRoute>
-            <MealForm />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/meals/:id" element={
-          <ProtectedRoute>
-            <MealDetail />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/meals/:id/edit" element={
-          <ProtectedRoute>
-            <MealForm />
-          </ProtectedRoute>
-        } />
-        
-        {/* 證件管理路由 */}
-        <Route path="/documents" element={
-          <ProtectedRoute>
-            <Document />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/documents/:type/new" element={
-          <ProtectedRoute>
-            <DocumentForm />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/documents/:type/:id" element={
-          <ProtectedRoute>
-            <DocumentDetail />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/documents/:type/:id/edit" element={
-          <ProtectedRoute>
-            <DocumentForm />
-          </ProtectedRoute>
-        } />
-        
-        {/* 用戶管理路由 */}
-        <Route path="/admin/users" element={
-          <AdminRoute>
-            <UserList />
-          </AdminRoute>
-        } />
-        
-        <Route path="/admin/users/new" element={
-          <AdminRoute>
-            <UserForm />
-          </AdminRoute>
-        } />
-        
-        <Route path="/admin/users/:id/edit" element={
-          <AdminRoute>
-            <UserForm />
-          </AdminRoute>
-        } />
-        
-        <Route path="/admin/users/:id" element={
-          <AdminRoute>
-            <UserDetail />
-          </AdminRoute>
-        } />
-        
-        {/* 個人資料路由 */}
-        <Route path="/profile" element={
-          <ProtectedRoute>
-            <Profile />
-          </ProtectedRoute>
-        } />
-        
-        {/* 預算管理路由 */}
-        <Route path="/budgets" element={
-          <ProtectedRoute>
-            <Budget />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/budgets/new" element={
-          <ProtectedRoute>
-            <BudgetForm />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/budgets/:id/edit" element={
-          <ProtectedRoute>
-            <BudgetForm />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/budgets/:budgetId/expenses" element={
-          <ProtectedRoute>
-            <ExpenseList />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/budgets/:budgetId/analysis" element={
-          <ProtectedRoute>
-            <BudgetAnalysis />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/expenses/new" element={
-          <ProtectedRoute>
-            <ExpenseForm />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/expenses/:id/edit" element={
-          <ProtectedRoute>
-            <ExpenseForm />
-          </ProtectedRoute>
-        } />
-        
-        {/* 旅遊花絮路由 */}
-        <Route path="/moments" element={
-          <ProtectedRoute>
-            <TravelMoments />
-          </ProtectedRoute>
-        } />
-        <Route path="/moments/album/:albumId" element={
-          <ProtectedRoute>
-            <MomentAlbum />
-          </ProtectedRoute>
-        } />
-        
-        {/* 注意事項路由 */}
-        <Route path="/notes" element={
-          <ProtectedRoute>
-            <TravelNotes />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/notes/new" element={
-          <ProtectedRoute>
-            <TravelNoteForm />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/notes/:id" element={
-          <ProtectedRoute>
-            <TravelNoteDetail />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/notes/:id/edit" element={
-          <ProtectedRoute>
-            <TravelNoteForm />
-          </ProtectedRoute>
-        } />
-        
-        {/* 舊的照片路由重定向到新的花絮路由 */}
-        <Route path="/photos" element={<Navigate replace to="/moments" />} />
-        <Route path="/photos/*" element={<Navigate replace to="/moments" />} />
-        
-        {/* 默認路由 */}
-        <Route path="/" element={<Navigate replace to="/login" />} />
-      </Routes>
-    </Router>
+    <SettingsProvider>
+      <Router>
+        <Routes>
+          {/* 公開路由 */}
+          <Route path="/login" element={<Login />} />
+          
+          {/* 保護路由 */}
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/trips" element={
+            <ProtectedRoute>
+              <Trips />
+            </ProtectedRoute>
+          } />
+          
+          {/* 注意：特定路由需要放在參數路由之前，避免路由衝突 */}
+          <Route path="/trips/new" element={
+            <ProtectedRoute>
+              <TripForm />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/trips/:id/edit" element={
+            <ProtectedRoute>
+              <TripForm />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/trips/:id" element={
+            <ProtectedRoute>
+              <TripDetail />
+            </ProtectedRoute>
+          } />
+          
+          {/* 行程管理路由 */}
+          <Route path="/itinerary" element={
+            <ProtectedRoute>
+              <Itinerary />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/itinerary/day/new" element={
+            <ProtectedRoute>
+              <ItineraryDayForm />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/itinerary/day/:id/edit" element={
+            <ProtectedRoute>
+              <ItineraryDayForm />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/itinerary/day/:id" element={
+            <ProtectedRoute>
+              <ItineraryDayDetail />
+            </ProtectedRoute>
+          } />
+          
+          {/* 交通管理路由 */}
+          <Route path="/transportation" element={
+            <ProtectedRoute>
+              <Transportation />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/transportation/new" element={
+            <ProtectedRoute>
+              <TransportationForm />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/transportation/:id/edit" element={
+            <ProtectedRoute>
+              <TransportationForm />
+            </ProtectedRoute>
+          } />
+          
+          {/* 住宿管理路由 */}
+          <Route path="/accommodation" element={
+            <ProtectedRoute>
+              <Accommodation />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/accommodation/new" element={
+            <ProtectedRoute>
+              <AccommodationForm />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/accommodation/:id" element={
+            <ProtectedRoute>
+              <AccommodationDetail />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/accommodation/:id/edit" element={
+            <ProtectedRoute>
+              <AccommodationForm />
+            </ProtectedRoute>
+          } />
+          
+          {/* 餐飲管理路由 */}
+          <Route path="/meals" element={
+            <ProtectedRoute>
+              <Meal />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/meals/new" element={
+            <ProtectedRoute>
+              <MealForm />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/meals/:id" element={
+            <ProtectedRoute>
+              <MealDetail />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/meals/:id/edit" element={
+            <ProtectedRoute>
+              <MealForm />
+            </ProtectedRoute>
+          } />
+          
+          {/* 證件管理路由 */}
+          <Route path="/documents" element={
+            <ProtectedRoute>
+              <Document />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/documents/:type/new" element={
+            <ProtectedRoute>
+              <DocumentForm />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/documents/:type/:id" element={
+            <ProtectedRoute>
+              <DocumentDetail />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/documents/:type/:id/edit" element={
+            <ProtectedRoute>
+              <DocumentForm />
+            </ProtectedRoute>
+          } />
+          
+          {/* 用戶管理路由 */}
+          <Route path="/admin/users" element={
+            <AdminRoute>
+              <UserList />
+            </AdminRoute>
+          } />
+          
+          <Route path="/admin/users/new" element={
+            <AdminRoute>
+              <UserForm />
+            </AdminRoute>
+          } />
+          
+          <Route path="/admin/users/:id/edit" element={
+            <AdminRoute>
+              <UserForm />
+            </AdminRoute>
+          } />
+          
+          <Route path="/admin/users/:id" element={
+            <AdminRoute>
+              <UserDetail />
+            </AdminRoute>
+          } />
+          
+          {/* 個人資料路由 */}
+          <Route path="/profile" element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          } />
+          
+          {/* 預算管理路由 */}
+          <Route path="/budgets" element={
+            <ProtectedRoute>
+              <Budget />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/budgets/new" element={
+            <ProtectedRoute>
+              <BudgetForm />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/budgets/:id/edit" element={
+            <ProtectedRoute>
+              <BudgetForm />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/budgets/:budgetId/expenses" element={
+            <ProtectedRoute>
+              <ExpenseList />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/budgets/:budgetId/analysis" element={
+            <ProtectedRoute>
+              <BudgetAnalysis />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/expenses/new" element={
+            <ProtectedRoute>
+              <ExpenseForm />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/expenses/:id/edit" element={
+            <ProtectedRoute>
+              <ExpenseForm />
+            </ProtectedRoute>
+          } />
+          
+          {/* 旅遊花絮路由 */}
+          <Route path="/moments" element={
+            <ProtectedRoute>
+              <TravelMoments />
+            </ProtectedRoute>
+          } />
+          <Route path="/moments/album/:albumId" element={
+            <ProtectedRoute>
+              <MomentAlbum />
+            </ProtectedRoute>
+          } />
+          
+          {/* 注意事項路由 */}
+          <Route path="/notes" element={
+            <ProtectedRoute>
+              <TravelNotes />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/notes/new" element={
+            <ProtectedRoute>
+              <TravelNoteForm />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/notes/:id" element={
+            <ProtectedRoute>
+              <TravelNoteDetail />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/notes/:id/edit" element={
+            <ProtectedRoute>
+              <TravelNoteForm />
+            </ProtectedRoute>
+          } />
+          
+          {/* 系統設定路由 */}
+          <Route path="/settings" element={
+            <ProtectedRoute>
+              <SystemSettings />
+            </ProtectedRoute>
+          } />
+          
+          {/* 舊的照片路由重定向到新的花絮路由 */}
+          <Route path="/photos" element={<Navigate replace to="/moments" />} />
+          <Route path="/photos/*" element={<Navigate replace to="/moments" />} />
+          
+          {/* 默認路由 */}
+          <Route path="/" element={<Navigate replace to="/login" />} />
+        </Routes>
+      </Router>
+    </SettingsProvider>
   );
 }
 

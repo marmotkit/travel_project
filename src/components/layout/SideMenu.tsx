@@ -15,8 +15,14 @@ import {
   ExclamationCircleOutlined,
   SettingOutlined,
   TeamOutlined,
-  BarChartOutlined
+  BarChartOutlined,
+  FileOutlined,
+  CameraOutlined,
+  NotificationOutlined,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined
 } from '@ant-design/icons';
+import { useSettings } from '../../contexts/SettingsContext';
 
 interface SideMenuProps {
   isAdmin: boolean;
@@ -27,6 +33,13 @@ type MenuItem = Required<MenuProps>['items'][number];
 const SideMenu: React.FC<SideMenuProps> = ({ isAdmin }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { settings, updateTheme } = useSettings();
+  const [collapsed, setCollapsed] = React.useState(settings.theme.sidebarCollapsed);
+
+  // 當設定變更時更新摺疊狀態
+  React.useEffect(() => {
+    setCollapsed(settings.theme.sidebarCollapsed);
+  }, [settings.theme.sidebarCollapsed]);
 
   const menuItems: MenuItem[] = [
     {
@@ -78,7 +91,12 @@ const SideMenu: React.FC<SideMenuProps> = ({ isAdmin }) => {
       key: '/notes',
       icon: <ExclamationCircleOutlined />,
       label: '注意事項',
-    }
+    },
+    {
+      key: '/settings',
+      icon: <SettingOutlined />,
+      label: '系統設定',
+    },
   ];
 
   const adminItems: MenuItem[] = [
@@ -107,14 +125,33 @@ const SideMenu: React.FC<SideMenuProps> = ({ isAdmin }) => {
     },
   ];
 
+  const toggleCollapsed = () => {
+    const newCollapsed = !collapsed;
+    setCollapsed(newCollapsed);
+    
+    // 更新設定
+    updateTheme({
+      sidebarCollapsed: newCollapsed
+    });
+  };
+
   return (
-    <div className="w-64 h-screen bg-[#001529] flex-shrink-0">
+    <div className={`${collapsed ? 'w-20' : 'w-64'} h-screen bg-[#001529] flex-shrink-0 transition-all duration-300`}>
+      <div className="flex justify-end p-2">
+        <button 
+          onClick={toggleCollapsed} 
+          className="text-white hover:text-blue-400 transition-colors"
+        >
+          {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+        </button>
+      </div>
       <Menu
         mode="inline"
+        inlineCollapsed={collapsed}
         selectedKeys={[location.pathname]}
         defaultOpenKeys={['admin']}
         style={{ 
-          height: '100%',
+          height: 'calc(100% - 40px)',
           borderRight: 0
         }}
         theme="dark"
@@ -125,4 +162,4 @@ const SideMenu: React.FC<SideMenuProps> = ({ isAdmin }) => {
   );
 };
 
-export default SideMenu; 
+export default SideMenu;
