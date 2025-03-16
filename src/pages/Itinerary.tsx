@@ -48,6 +48,8 @@ const Itinerary: React.FC = () => {
   const [selectedTripId, setSelectedTripId] = useState<string | null>(null);
   const [itineraryDays, setItineraryDays] = useState<ItineraryDay[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [dayToDelete, setDayToDelete] = useState<string | null>(null);
 
   // 檢查用戶身份並加載數據
   useEffect(() => {
@@ -131,6 +133,49 @@ const Itinerary: React.FC = () => {
   // 查看行程日詳情
   const handleViewItineraryDay = (dayId: string) => {
     navigate(`/itinerary/day/${dayId}`);
+  };
+
+  // 顯示刪除確認對話框
+  const handleConfirmDelete = (dayId: string) => {
+    setDayToDelete(dayId);
+    setShowDeleteModal(true);
+  };
+
+  // 刪除行程日
+  const handleDeleteItineraryDay = () => {
+    if (!dayToDelete) return;
+
+    try {
+      // 從 localStorage 獲取現有行程日
+      const itineraryStr = localStorage.getItem('itinerary');
+      if (!itineraryStr) {
+        setShowDeleteModal(false);
+        return;
+      }
+
+      const allItineraryDays: ItineraryDay[] = JSON.parse(itineraryStr);
+      // 過濾掉要刪除的行程日
+      const updatedItineraryDays = allItineraryDays.filter(day => day.id !== dayToDelete);
+      
+      // 保存更新後的行程日數據
+      localStorage.setItem('itinerary', JSON.stringify(updatedItineraryDays));
+      
+      // 更新本地狀態
+      setItineraryDays(updatedItineraryDays);
+      
+      // 關閉確認對話框
+      setShowDeleteModal(false);
+      setDayToDelete(null);
+    } catch (err) {
+      console.error('刪除行程日時出錯:', err);
+      setShowDeleteModal(false);
+    }
+  };
+
+  // 取消刪除
+  const handleCancelDelete = () => {
+    setShowDeleteModal(false);
+    setDayToDelete(null);
   };
 
   // 格式化日期顯示
@@ -280,14 +325,23 @@ const Itinerary: React.FC = () => {
                         <button
                           onClick={() => handleViewItineraryDay(day.id)}
                           className="ml-2 px-3 py-1 border border-gray-300 rounded-md text-gray-600 hover:bg-gray-100"
+                          title="查看"
                         >
                           <i className="fas fa-eye"></i>
                         </button>
                         <button
                           onClick={() => handleEditItineraryDay(day.id)}
                           className="ml-2 px-3 py-1 border border-blue-300 rounded-md text-blue-600 hover:bg-blue-50"
+                          title="編輯"
                         >
                           <i className="fas fa-edit"></i>
+                        </button>
+                        <button
+                          onClick={() => handleConfirmDelete(day.id)}
+                          className="ml-2 px-3 py-1 border border-red-300 rounded-md text-red-600 hover:bg-red-50"
+                          title="刪除"
+                        >
+                          <i className="fas fa-trash-alt"></i>
                         </button>
                       </div>
                     </div>
@@ -296,6 +350,30 @@ const Itinerary: React.FC = () => {
               </div>
             )}
           </div>
+          
+          {/* 刪除確認對話框 */}
+          {showDeleteModal && (
+            <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
+                <h2 className="text-xl font-semibold mb-4">確認刪除</h2>
+                <p className="text-gray-700 mb-6">確定要刪除此行程日嗎？此操作無法撤銷。</p>
+                <div className="flex justify-end space-x-3">
+                  <button
+                    onClick={handleCancelDelete}
+                    className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100"
+                  >
+                    取消
+                  </button>
+                  <button
+                    onClick={handleDeleteItineraryDay}
+                    className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                  >
+                    確認刪除
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </main>
       </div>
     </div>

@@ -13,6 +13,8 @@ import Profile from './pages/Profile';
 import Itinerary from './pages/Itinerary';
 import ItineraryDayDetail from './pages/ItineraryDayDetail';
 import ItineraryDayForm from './pages/ItineraryDayForm';
+import Transportation from './pages/Transportation';
+import TransportationForm from './pages/TransportationForm';
 
 // 路由保護組件
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -329,6 +331,25 @@ function App() {
         <Route path="/itinerary/day/:id" element={
           <ProtectedRoute>
             <ItineraryDayDetail />
+          </ProtectedRoute>
+        } />
+        
+        {/* 交通管理路由 */}
+        <Route path="/transportation" element={
+          <ProtectedRoute>
+            <Transportation />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/transportation/new" element={
+          <ProtectedRoute>
+            <TransportationForm />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/transportation/:id/edit" element={
+          <ProtectedRoute>
+            <TransportationForm />
           </ProtectedRoute>
         } />
         
