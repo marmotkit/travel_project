@@ -10,6 +10,9 @@ import UserList from './pages/UserList';
 import UserDetail from './pages/UserDetail';
 import UserForm from './pages/UserForm';
 import Profile from './pages/Profile';
+import Itinerary from './pages/Itinerary';
+import ItineraryDayDetail from './pages/ItineraryDayDetail';
+import ItineraryDayForm from './pages/ItineraryDayForm';
 
 // 路由保護組件
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -93,6 +96,177 @@ function App() {
       
       localStorage.setItem('trips', JSON.stringify(defaultTrips));
     }
+    
+    // 初始化默認行程數據（如果不存在）
+    const itinerary = localStorage.getItem('itinerary');
+    if (!itinerary) {
+      const defaultItinerary = [
+        {
+          id: '1',
+          tripId: '1', // 關聯到東京五日遊
+          date: '2023-12-15',
+          dayNumber: 1,
+          title: '抵達東京/成田機場',
+          description: '抵達東京，辦理入住手續，探索酒店周邊。',
+          activities: [
+            {
+              id: '101',
+              startTime: '14:00',
+              endTime: '15:30',
+              title: '成田機場抵達',
+              description: '抵達成田機場，領取行李並辦理入境手續',
+              location: '成田國際機場',
+              address: '千葉縣成田市',
+              category: 'transportation'
+            },
+            {
+              id: '102',
+              startTime: '16:00',
+              endTime: '17:30',
+              title: '前往酒店',
+              description: '乘坐機場巴士前往東京市區酒店',
+              location: '成田機場 → 東京市區',
+              cost: 3000,
+              currency: 'JPY',
+              category: 'transportation'
+            },
+            {
+              id: '103',
+              startTime: '18:00',
+              endTime: '19:30',
+              title: '晚餐',
+              description: '在酒店附近的拉麵店享用晚餐',
+              location: '一蘭拉麵 新宿店',
+              address: '東京都新宿區歌舞伎町1-22-7',
+              cost: 1500,
+              currency: 'JPY',
+              category: 'meal',
+              notes: '人氣店可能需要排隊'
+            }
+          ],
+          accommodationId: 'a1',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        },
+        {
+          id: '2',
+          tripId: '1', // 關聯到東京五日遊
+          date: '2023-12-16',
+          dayNumber: 2,
+          title: '探索淺草和晴空塔',
+          description: '參觀淺草寺和東京晴空塔，體驗傳統與現代的東京。',
+          activities: [
+            {
+              id: '201',
+              startTime: '09:00',
+              endTime: '10:30',
+              title: '淺草寺',
+              description: '參觀東京最古老的寺廟',
+              location: '淺草寺',
+              address: '東京都台東區淺草2-3-1',
+              cost: 0,
+              currency: 'JPY',
+              category: 'sightseeing',
+              notes: '記得在雷門拍照'
+            },
+            {
+              id: '202',
+              startTime: '11:00',
+              endTime: '12:30',
+              title: '仲見世街',
+              description: '在淺草寺附近的傳統購物街逛街',
+              location: '仲見世街',
+              address: '東京都台東區淺草1-36',
+              category: 'activity'
+            }
+          ],
+          accommodationId: 'a1',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+      ];
+      
+      localStorage.setItem('itinerary', JSON.stringify(defaultItinerary));
+    }
+    
+    // 初始化默認住宿數據（如果不存在）
+    const accommodations = localStorage.getItem('accommodations');
+    if (!accommodations) {
+      const defaultAccommodations = [
+        {
+          id: 'a1',
+          name: '東京新宿格拉斯麗酒店',
+          address: '東京都新宿區西新宿2-19-12',
+          checkIn: '15:00',
+          checkOut: '11:00',
+          price: 12000,
+          currency: 'JPY',
+          confirmationNumber: 'HT12345'
+        }
+      ];
+      
+      localStorage.setItem('accommodations', JSON.stringify(defaultAccommodations));
+    }
+    
+    // 初始化默認交通數據（如果不存在）
+    const transportations = localStorage.getItem('transportations');
+    if (!transportations) {
+      const defaultTransportations = [
+        {
+          id: 't1',
+          type: 'flight',
+          departureLocation: '台北桃園機場',
+          arrivalLocation: '東京成田機場',
+          departureTime: '2023-12-15T09:00:00.000Z',
+          arrivalTime: '2023-12-15T13:00:00.000Z',
+          referenceNumber: 'JL802',
+          price: 15000,
+          currency: 'TWD'
+        },
+        {
+          id: 't2',
+          type: 'flight',
+          departureLocation: '東京成田機場',
+          arrivalLocation: '台北桃園機場',
+          departureTime: '2023-12-20T14:00:00.000Z',
+          arrivalTime: '2023-12-20T17:00:00.000Z',
+          referenceNumber: 'JL805',
+          price: 15000,
+          currency: 'TWD'
+        }
+      ];
+      
+      localStorage.setItem('transportations', JSON.stringify(defaultTransportations));
+    }
+    
+    // 初始化默認餐飲數據（如果不存在）
+    const meals = localStorage.getItem('meals');
+    if (!meals) {
+      const defaultMeals = [
+        {
+          id: 'm1',
+          name: '壽司大',
+          location: '東京都新宿區歌舞伎町2-25-4',
+          time: '12:00',
+          type: 'lunch',
+          reservationInfo: '03-1234-5678',
+          price: 4000,
+          currency: 'JPY'
+        },
+        {
+          id: 'm2',
+          name: '燒肉王',
+          location: '東京都新宿區西新宿1-12-9',
+          time: '18:30',
+          type: 'dinner',
+          reservationInfo: '03-8765-4321',
+          price: 6000,
+          currency: 'JPY'
+        }
+      ];
+      
+      localStorage.setItem('meals', JSON.stringify(defaultMeals));
+    }
   }, []);
 
   return (
@@ -130,6 +304,31 @@ function App() {
         <Route path="/trips/:id" element={
           <ProtectedRoute>
             <TripDetail />
+          </ProtectedRoute>
+        } />
+        
+        {/* 行程管理路由 */}
+        <Route path="/itinerary" element={
+          <ProtectedRoute>
+            <Itinerary />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/itinerary/day/new" element={
+          <ProtectedRoute>
+            <ItineraryDayForm />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/itinerary/day/:id/edit" element={
+          <ProtectedRoute>
+            <ItineraryDayForm />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/itinerary/day/:id" element={
+          <ProtectedRoute>
+            <ItineraryDayDetail />
           </ProtectedRoute>
         } />
         

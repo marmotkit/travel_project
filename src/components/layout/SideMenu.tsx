@@ -11,10 +11,10 @@ const SideMenu: React.FC<SideMenuProps> = ({ isAdmin }) => {
   const menuItems = [
     { path: '/dashboard', icon: 'fa-tachometer-alt', label: '儀表板' },
     { path: '/trips', icon: 'fa-suitcase', label: '旅遊專案' },
+    { path: '/itinerary', icon: 'fa-map-marked-alt', label: '行程管理' },
     { path: '/transport', icon: 'fa-plane', label: '交通管理' },
     { path: '/accommodation', icon: 'fa-bed', label: '住宿管理' },
     { path: '/meals', icon: 'fa-utensils', label: '餐飲管理' },
-    { path: '/itinerary', icon: 'fa-map-marked-alt', label: '行程管理' },
     { path: '/documents', icon: 'fa-passport', label: '證件管理' },
     { path: '/budget', icon: 'fa-calculator', label: '預算管理' },
     { path: '/photos', icon: 'fa-images', label: '旅遊照片' },
