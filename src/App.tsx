@@ -21,6 +21,9 @@ import AccommodationDetail from './pages/AccommodationDetail';
 import Meal from './pages/Meal';
 import MealForm from './pages/MealForm';
 import MealDetail from './pages/MealDetail';
+import Document from './pages/Document';
+import DocumentForm from './pages/DocumentForm';
+import DocumentDetail from './pages/DocumentDetail';
 
 // 路由保護組件
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -406,6 +409,31 @@ function App() {
         <Route path="/meals/:id/edit" element={
           <ProtectedRoute>
             <MealForm />
+          </ProtectedRoute>
+        } />
+        
+        {/* 證件管理路由 */}
+        <Route path="/documents" element={
+          <ProtectedRoute>
+            <Document />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/documents/:type/new" element={
+          <ProtectedRoute>
+            <DocumentForm />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/documents/:type/:id" element={
+          <ProtectedRoute>
+            <DocumentDetail />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/documents/:type/:id/edit" element={
+          <ProtectedRoute>
+            <DocumentForm />
           </ProtectedRoute>
         } />
         
