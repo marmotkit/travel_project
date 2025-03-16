@@ -16,7 +16,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ isAdmin }) => {
     { path: '/accommodation', icon: 'fa-bed', label: '住宿管理' },
     { path: '/meals', icon: 'fa-utensils', label: '餐飲管理' },
     { path: '/documents', icon: 'fa-passport', label: '證件管理' },
-    { path: '/budget', icon: 'fa-calculator', label: '預算管理' },
+    { path: '/budgets', icon: 'fa-calculator', label: '預算管理' },
     { path: '/photos', icon: 'fa-images', label: '旅遊照片' },
     { path: '/notes', icon: 'fa-sticky-note', label: '注意事項' },
   ];
@@ -40,7 +40,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ isAdmin }) => {
               <Link
                 to={item.path}
                 className={`flex items-center ${
-                  location.pathname === item.path ? 'text-blue-400' : 'text-gray-300'
+                  location.pathname.startsWith(item.path) ? 'text-blue-400' : 'text-gray-300'
                 } hover:text-white transition-colors duration-200`}
               >
                 <i className={`fas ${item.icon} w-5 text-center mr-3`}></i>
@@ -59,7 +59,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ isAdmin }) => {
                   <Link
                     to={item.path}
                     className={`flex items-center ${
-                      location.pathname === item.path ? 'text-blue-400' : 'text-gray-300'
+                      location.pathname.startsWith(item.path) ? 'text-blue-400' : 'text-gray-300'
                     } hover:text-white transition-colors duration-200`}
                   >
                     <i className={`fas ${item.icon} w-5 text-center mr-3`}></i>

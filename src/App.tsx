@@ -24,6 +24,11 @@ import MealDetail from './pages/MealDetail';
 import Document from './pages/Document';
 import DocumentForm from './pages/DocumentForm';
 import DocumentDetail from './pages/DocumentDetail';
+import Budget from './pages/Budget';
+import BudgetForm from './pages/BudgetForm';
+import ExpenseForm from './pages/ExpenseForm';
+import ExpenseList from './pages/ExpenseList';
+import BudgetAnalysis from './pages/BudgetAnalysis';
 
 // 路由保護組件
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -466,6 +471,49 @@ function App() {
         <Route path="/profile" element={
           <ProtectedRoute>
             <Profile />
+          </ProtectedRoute>
+        } />
+        
+        {/* 預算管理路由 */}
+        <Route path="/budgets" element={
+          <ProtectedRoute>
+            <Budget />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/budgets/new" element={
+          <ProtectedRoute>
+            <BudgetForm />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/budgets/:id/edit" element={
+          <ProtectedRoute>
+            <BudgetForm />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/budgets/:budgetId/expenses" element={
+          <ProtectedRoute>
+            <ExpenseList />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/budgets/:budgetId/analysis" element={
+          <ProtectedRoute>
+            <BudgetAnalysis />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/expenses/new" element={
+          <ProtectedRoute>
+            <ExpenseForm />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/expenses/:id/edit" element={
+          <ProtectedRoute>
+            <ExpenseForm />
           </ProtectedRoute>
         } />
         
