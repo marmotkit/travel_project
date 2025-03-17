@@ -20,36 +20,11 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-// 中間件配置
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cors());
-app.use(compression());
-app.use(helmet({ contentSecurityPolicy: false }));
-
-// 路由設置
-app.use('/api/users', userRoutes);
-app.use('/api/trips', tripRoutes);
-app.use('/api/photos', photoRoutes);
-
-// 錯誤處理中間件
-app.use(errorHandler);
-
-// 靜態文件服務
-app.use(express.static(path.join(__dirname, '../../build')));
-
-// 所有其他路由返回React應用
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../build', 'index.html'));
-});
-
-// 初始化默認用戶
-const initDefaultUsers = async () => {
+// 確保數據庫表已創建
+const ensureTablesExist = async () => {
   try {
-    console.log('檢查默認用戶是否存在...');
-
     // 檢查 users 表是否存在
-    const tablesCheck = await pool.query(`
+    const usersTableCheck = await pool.query(`
       SELECT EXISTS (
         SELECT FROM information_schema.tables 
         WHERE table_schema = 'public' 
@@ -57,8 +32,64 @@ const initDefaultUsers = async () => {
       );
     `);
 
-    if (!tablesCheck.rows[0].exists) {
-      console.log('用戶表不存在，將在第一次請求後自動創建');
+    // 如果不存在，創建基本表結構
+    if (!usersTableCheck.rows[0].exists) {
+      console.log('創建用戶表...');
+      await pool.query(`
+        CREATE TABLE users (
+          id SERIAL PRIMARY KEY,
+          username VARCHAR(50) NOT NULL,
+          email VARCHAR(100) UNIQUE NOT NULL,
+          password VARCHAR(255) NOT NULL,
+          role VARCHAR(20) DEFAULT 'user',
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
+      console.log('用戶表創建成功');
+    }
+
+    // 檢查 user_settings 表
+    const settingsTableCheck = await pool.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'user_settings'
+      );
+    `);
+
+    if (!settingsTableCheck.rows[0].exists) {
+      console.log('創建用戶設置表...');
+      await pool.query(`
+        CREATE TABLE user_settings (
+          id SERIAL PRIMARY KEY,
+          user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+          theme VARCHAR(20) DEFAULT 'light',
+          language VARCHAR(10) DEFAULT 'zh',
+          notifications BOOLEAN DEFAULT true,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
+      console.log('用戶設置表創建成功');
+    }
+
+    return true;
+  } catch (error) {
+    console.error('確保表存在時出錯:', error);
+    return false;
+  }
+};
+
+// 初始化默認用戶
+const initDefaultUsers = async () => {
+  try {
+    console.log('檢查默認用戶是否存在...');
+
+    // 首先確保表存在
+    const tablesExist = await ensureTablesExist();
+    if (!tablesExist) {
+      console.log('表創建失敗，無法初始化用戶');
       return;
     }
 
@@ -123,10 +154,49 @@ const initDefaultUsers = async () => {
         password: 'password123'  // 只在日誌中顯示，不存儲明文密碼
       });
     }
+
+    console.log('默認用戶初始化完成');
   } catch (error) {
     console.error('初始化用戶時出錯:', error);
   }
 };
+
+// 中間件配置
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cors());
+app.use(compression());
+app.use(helmet({ contentSecurityPolicy: false }));
+
+// 添加中間件來檢查並創建初始用戶
+app.use(async (req, res, next) => {
+  // 如果是第一次請求，則嘗試初始化用戶
+  if (!app.locals.initialized) {
+    try {
+      await initDefaultUsers();
+      app.locals.initialized = true;
+    } catch (error) {
+      console.error('初始化用戶失敗，但仍將繼續處理請求:', error);
+    }
+  }
+  next();
+});
+
+// 路由設置
+app.use('/api/users', userRoutes);
+app.use('/api/trips', tripRoutes);
+app.use('/api/photos', photoRoutes);
+
+// 錯誤處理中間件
+app.use(errorHandler);
+
+// 靜態文件服務
+app.use(express.static(path.join(__dirname, '../../build')));
+
+// 所有其他路由返回React應用
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../build', 'index.html'));
+});
 
 // 啟動服務器
 const startServer = async () => {
