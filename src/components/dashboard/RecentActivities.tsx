@@ -1,34 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, List, Avatar, Badge, Tag, Empty, Space, Card } from 'antd';
+import { Typography, List, Avatar, Badge, Tag, Empty, Space, Card, Button, Popconfirm, message } from 'antd';
 import { 
   ClockCircleOutlined, 
   ExclamationCircleOutlined, 
   InfoCircleOutlined, 
-  CheckCircleOutlined 
+  CheckCircleOutlined,
+  CheckOutlined,
+  DeleteOutlined
 } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { TravelNote } from '../../pages/TravelNotes';
 import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import 'dayjs/locale/zh-tw';
+import { Activity, getActivities, markActivityAsRead, markAllActivitiesAsRead, deleteActivity } from '../../services/ActivityService';
+
+// 設置dayjs插件
+dayjs.extend(relativeTime);
+dayjs.locale('zh-tw');
 
 const { Title, Text } = Typography;
-
-// 虛擬的最近活動數據類型
-interface Activity {
-  id: string;
-  type: 'trip_created' | 'trip_updated' | 'document_added' | 'itinerary_updated' | 'note_reminder';
-  message: string;
-  user: {
-    name: string;
-    avatar: string;
-  };
-  entity?: {
-    id: string;
-    name: string;
-    type: string;
-  };
-  timestamp: string;
-  read: boolean;
-}
 
 // 擴展TravelNote類型，添加tripTitle屬性
 interface TravelNoteWithTrip extends TravelNote {
@@ -41,68 +32,12 @@ const RecentActivities: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 從LocalStorage加載活動數據和提醒
+    // 從ActivityService和LocalStorage加載活動數據和提醒
     const loadData = () => {
       try {
         // 載入活動
-        const activitiesStr = localStorage.getItem('activities');
-        if (activitiesStr) {
-          setActivities(JSON.parse(activitiesStr));
-        } else {
-          // 生成一些模擬活動數據
-          const mockActivities: Activity[] = [
-            {
-              id: '1',
-              type: 'trip_created',
-              message: '創建了新的旅遊專案',
-              user: {
-                name: '測試用戶',
-                avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
-              },
-              entity: {
-                id: '1',
-                name: '東京五日遊',
-                type: 'trip',
-              },
-              timestamp: new Date().toISOString(),
-              read: false,
-            },
-            {
-              id: '2',
-              type: 'document_added',
-              message: '上傳了新的證件',
-              user: {
-                name: '測試用戶',
-                avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
-              },
-              entity: {
-                id: '1',
-                name: '護照',
-                type: 'document',
-              },
-              timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-              read: true,
-            },
-            {
-              id: '3',
-              type: 'itinerary_updated',
-              message: '更新了行程安排',
-              user: {
-                name: '測試用戶',
-                avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
-              },
-              entity: {
-                id: '1',
-                name: '東京五日遊',
-                type: 'itinerary',
-              },
-              timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-              read: true,
-            },
-          ];
-          setActivities(mockActivities);
-          localStorage.setItem('activities', JSON.stringify(mockActivities));
-        }
+        const recentActivities = getActivities(10); // 只獲取最近10條活動
+        setActivities(recentActivities);
 
         // 載入注意事項提醒
         const notesStr = localStorage.getItem('travelNotes');
@@ -145,6 +80,36 @@ const RecentActivities: React.FC = () => {
     loadData();
   }, []);
 
+  // 處理將活動標記為已讀
+  const handleMarkAsRead = (activityId: string) => {
+    markActivityAsRead(activityId);
+    // 更新狀態
+    setActivities(prevActivities => 
+      prevActivities.map(activity => 
+        activity.id === activityId ? { ...activity, read: true } : activity
+      )
+    );
+  };
+
+  // 處理標記所有活動為已讀
+  const handleMarkAllAsRead = () => {
+    markAllActivitiesAsRead();
+    // 更新狀態
+    setActivities(prevActivities => 
+      prevActivities.map(activity => ({ ...activity, read: true }))
+    );
+  };
+
+  // 處理刪除活動
+  const handleDeleteActivity = (activityId: string) => {
+    deleteActivity(activityId);
+    // 更新狀態，移除被刪除的活動
+    setActivities(prevActivities => 
+      prevActivities.filter(activity => activity.id !== activityId)
+    );
+    message.success('已刪除活動記錄');
+  };
+
   // 獲取優先級樣式
   const getPriorityStyle = (priority: string) => {
     switch (priority) {
@@ -159,9 +124,34 @@ const RecentActivities: React.FC = () => {
     }
   };
 
+  // 格式化活動時間
+  const formatActivityTime = (timestamp: string) => {
+    const activityTime = dayjs(timestamp);
+    const now = dayjs();
+    
+    if (now.diff(activityTime, 'day') < 1) {
+      return activityTime.fromNow(); // 今天內顯示"幾小時前"、"幾分鐘前"
+    } else if (now.diff(activityTime, 'day') < 7) {
+      return activityTime.format('dddd HH:mm'); // 一週內顯示"星期幾 時間"
+    } else {
+      return activityTime.format('YYYY/MM/DD HH:mm'); // 一週前顯示完整日期時間
+    }
+  };
+
   return (
     <div className="bg-white p-6 rounded-lg shadow">
-      <Title level={4}>最近活動</Title>
+      <div className="flex justify-between items-center mb-4">
+        <Title level={4} className="mb-0">最近活動</Title>
+        {activities.some(activity => !activity.read) && (
+          <Button 
+            type="text" 
+            icon={<CheckOutlined />} 
+            onClick={handleMarkAllAsRead}
+          >
+            全部標記為已讀
+          </Button>
+        )}
+      </div>
       
       {/* 提醒區塊 */}
       {upcomingReminders.length > 0 && (
@@ -223,7 +213,36 @@ const RecentActivities: React.FC = () => {
         dataSource={activities}
         locale={{ emptyText: <Empty description="沒有最近活動" /> }}
         renderItem={activity => (
-          <List.Item>
+          <List.Item
+            actions={[
+              !activity.read && (
+                <Button 
+                  type="text" 
+                  size="small" 
+                  onClick={() => handleMarkAsRead(activity.id)}
+                >
+                  標記為已讀
+                </Button>
+              ),
+              <Popconfirm
+                title="確定要刪除此活動記錄嗎？"
+                onConfirm={() => handleDeleteActivity(activity.id)}
+                okText="確定"
+                cancelText="取消"
+                okButtonProps={{ className: 'bg-blue-600 hover:bg-blue-700' }}
+                cancelButtonProps={{ style: { marginRight: '10px' } }}
+              >
+                <Button 
+                  type="text" 
+                  danger
+                  size="small" 
+                  icon={<DeleteOutlined />}
+                >
+                  刪除
+                </Button>
+              </Popconfirm>
+            ]}
+          >
             <List.Item.Meta
               avatar={<Avatar src={activity.user.avatar} />}
               title={activity.user.name}
@@ -245,7 +264,7 @@ const RecentActivities: React.FC = () => {
                     )}
                   </Text>
                   <Text type="secondary">
-                    {dayjs(activity.timestamp).format('YYYY/MM/DD HH:mm')}
+                    {formatActivityTime(activity.timestamp)}
                   </Text>
                 </Space>
               }
@@ -256,8 +275,12 @@ const RecentActivities: React.FC = () => {
           </List.Item>
         )}
       />
+      
+      {activities.length === 0 && !loading && (
+        <Empty description="尚無活動記錄" />
+      )}
     </div>
   );
 };
 
-export default RecentActivities; 
+export default RecentActivities;

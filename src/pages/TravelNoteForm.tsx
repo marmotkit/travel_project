@@ -33,6 +33,7 @@ import dayjs from 'dayjs';
 import { TravelNote } from './TravelNotes';
 import Header from '../components/layout/Header';
 import SideMenu from '../components/layout/SideMenu';
+import { logActivity } from '../services/ActivityService';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -178,6 +179,19 @@ const TravelNoteForm: React.FC = () => {
         );
         
         localStorage.setItem('travelNotes', JSON.stringify(updatedNotes));
+        
+        // 記錄更新注意事項的活動
+        const selectedTrip = trips.find(trip => trip.id === values.tripId);
+        logActivity(
+          'note_updated',
+          '更新了旅行注意事項',
+          {
+            id: id as string,
+            name: values.title,
+            type: 'note'
+          }
+        );
+        
         message.success('注意事項已更新');
       } else {
         // 創建新的注意事項
@@ -190,6 +204,19 @@ const TravelNoteForm: React.FC = () => {
         
         notes.push(newNote);
         localStorage.setItem('travelNotes', JSON.stringify(notes));
+        
+        // 記錄創建注意事項的活動
+        const selectedTrip = trips.find(trip => trip.id === values.tripId);
+        logActivity(
+          'note_created',
+          '創建了新的旅行注意事項',
+          {
+            id: newNote.id,
+            name: values.title,
+            type: 'note'
+          }
+        );
+        
         message.success('注意事項已創建');
       }
       

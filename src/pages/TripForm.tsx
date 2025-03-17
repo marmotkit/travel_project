@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import SideMenu from '../components/layout/SideMenu';
 import Header from '../components/layout/Header';
 import { v4 as uuidv4 } from 'uuid';
+import { logActivity } from '../services/ActivityService';
 
 interface Trip {
   id: string;
@@ -154,6 +155,17 @@ const TripForm: React.FC = () => {
         });
         
         localStorage.setItem('trips', JSON.stringify(updatedTrips));
+        
+        // 記錄更新旅程的活動
+        logActivity(
+          'trip_updated',
+          '更新了行程計劃',
+          {
+            id,
+            name: title,
+            type: 'trip'
+          }
+        );
       } else {
         // 創建新旅程
         const newTrip: Trip = {
@@ -175,6 +187,17 @@ const TripForm: React.FC = () => {
         
         trips.push(newTrip);
         localStorage.setItem('trips', JSON.stringify(trips));
+        
+        // 記錄創建新旅程的活動
+        logActivity(
+          'trip_created',
+          '創建了新的旅遊專案',
+          {
+            id: newTrip.id,
+            name: title,
+            type: 'trip'
+          }
+        );
       }
       
       // 重定向到旅程列表頁面
