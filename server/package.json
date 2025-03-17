@@ -6,7 +6,7 @@
     "start": "node dist/index.js",
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc",
-    "build-deploy": "tsc --skipLibCheck --skipDefaultLibCheck --forceConsistentCasingInFileNames false",
+    "build-deploy": "tsc --skipLibCheck --skipDefaultLibCheck --forceConsistentCasingInFileNames false || mkdir -p dist && cp -r src/* dist/ && find dist -name '*.ts' -exec bash -c 'mv \"$0\" \"${0%.ts}.js\"' {} \\;",
     "lint": "eslint . --ext .ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -16,7 +16,7 @@
   "description": "",
   "dependencies": {
     "@azure/storage-blob": "^12.26.0",
-    "bcrypt": "^5.1.1",
+    "bcryptjs": "^2.4.3",
     "compression": "^1.8.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
@@ -27,7 +27,7 @@
     "pg": "^8.14.0"
   },
   "devDependencies": {
-    "@types/bcrypt": "^5.0.2",
+    "@types/bcryptjs": "^2.4.6",
     "@types/compression": "^1.7.5",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
