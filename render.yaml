@@ -18,7 +18,7 @@ services:
     env: node
     region: singapore
     plan: free
-    buildCommand: cd server && npm install && npm install -g ts-node
+    buildCommand: cd server && npm install && npm rebuild bcrypt --build-from-source && npm install -g ts-node
     startCommand: cd server && ts-node src/index.ts
     envVars:
       - key: NODE_ENV
