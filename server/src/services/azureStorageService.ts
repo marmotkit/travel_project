@@ -30,8 +30,21 @@ export const getBlobClient = (filename: string): BlockBlobClient => {
   return containerClient.getBlockBlobClient(filename);
 };
 
+// 定義一個符合 Multer 文件對象結構的接口
+interface MulterFile {
+  fieldname: string;
+  originalname: string;
+  encoding: string;
+  mimetype: string;
+  size: number;
+  buffer: Buffer;
+  destination?: string;
+  filename?: string;
+  path?: string;
+}
+
 // 上傳文件
-export const uploadFile = async (file: Express.Multer.File): Promise<string> => {
+export const uploadFile = async (file: MulterFile): Promise<string> => {
   try {
     const blobName = `${Date.now()}-${file.originalname.replace(/\s+/g, '-')}`;
     const blockBlobClient = containerClient.getBlockBlobClient(blobName);
