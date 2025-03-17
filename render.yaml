@@ -18,8 +18,8 @@ services:
     env: node
     region: singapore
     plan: free
-    buildCommand: cd server && npm install && npm install --save-dev @types/node @types/express @types/pg @types/bcrypt @types/multer @types/jsonwebtoken @types/cors @types/compression && echo '{"compilerOptions":{"noEmit":false}}' > temp-tsconfig.json && npx tsc --project temp-tsconfig.json --skipLibCheck --noEmitOnError
-    startCommand: cd server && node dist/index.js
+    buildCommand: cd server && npm install && npm install -g ts-node
+    startCommand: cd server && ts-node src/index.ts
     envVars:
       - key: NODE_ENV
         value: production
