@@ -28,6 +28,11 @@ export type SystemSettings = {
   about: {
     version: string; // 應用版本
     lastUpdated: string; // 最後更新日期
+    developerName: string; // 開發者名稱
+    contactEmail: string; // 聯絡信箱
+    websiteUrl: string; // 官方網站
+    description: string; // 系統描述
+    copyright: string; // 版權信息
   };
 };
 
@@ -57,8 +62,13 @@ const defaultSettings: SystemSettings = {
     backupLocation: 'local',
   },
   about: {
-    version: '1.3.1',
+    version: '1.4.5',
     lastUpdated: new Date().toISOString(),
+    developerName: '旅行計劃管理系統開發團隊',
+    contactEmail: 'contact@travelplan.example.com',
+    websiteUrl: 'https://travelplan.example.com',
+    description: '一個全面的旅行管理應用程式，幫助您規劃、組織和管理您的旅行體驗。',
+    copyright: '\u00A9 2025 旅行計劃管理系統 版權所有'
   },
 };
 

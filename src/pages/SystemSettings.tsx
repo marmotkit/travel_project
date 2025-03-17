@@ -12,7 +12,7 @@ const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
 
 const SystemSettings: React.FC = () => {
-  const { settings, updateTheme, updateLocalization, updateNotifications, updateDataManagement, resetSettings, applyTheme, setSidebarCollapsed } = useSettings();
+  const { settings, updateTheme, updateLocalization, updateNotifications, updateDataManagement, resetSettings, applyTheme, setSidebarCollapsed, updateSettings } = useSettings();
   const [resetConfirm, setResetConfirm] = useState(false);
   const [isAdmin, setIsAdmin] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -109,6 +109,58 @@ const SystemSettings: React.FC = () => {
         marginTop: '20vh',
       }
     });
+  };
+
+  // 關於系統表單提交
+  const handleAboutSubmit = (values: SystemSettingsType['about']) => {
+    // 顯示載入中
+    setLoading(true);
+    
+    // 只更新可編輯字段，保留原有的版本號和更新日期
+    const updatedAbout = {
+      ...settings.about,
+      developerName: values.developerName,
+      contactEmail: values.contactEmail,
+      websiteUrl: values.websiteUrl,
+      description: values.description,
+      copyright: values.copyright
+    };
+
+    try {
+      // 更新設定
+      updateSettings({
+        about: updatedAbout
+      });
+      
+      // 顯示成功狀態
+      setSaveSuccess(true);
+      
+      // 顯示成功訊息
+      message.success({
+        content: '關於系統資訊已成功儲存',
+        duration: 3,
+        style: {
+          marginTop: '20vh',
+        }
+      });
+      
+      // 3秒後重置成功狀態
+      setTimeout(() => {
+        setSaveSuccess(false);
+      }, 3000);
+    } catch (error) {
+      // 顯示錯誤訊息
+      message.error({
+        content: '儲存失敗，請稍後再試',
+        duration: 3,
+        style: {
+          marginTop: '20vh',
+        }
+      });
+    } finally {
+      // 結束載入狀態
+      setLoading(false);
+    }
   };
 
   // 側邊欄折疊設定變更處理
@@ -537,36 +589,122 @@ const SystemSettings: React.FC = () => {
       ),
       children: (
         <Card>
-          <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-            <Title level={4}>旅行計劃管理系統</Title>
-            <Paragraph>
-              一個全面的旅行管理應用程式，幫助您規劃、組織和管理您的旅行體驗。
-            </Paragraph>
-            
-            <Divider />
-            
-            <Text strong>版本號：</Text>
-            <Text>{settings.about.version}</Text>
-            
-            <Text strong>最後更新：</Text>
-            <Text>{new Date(settings.about.lastUpdated).toLocaleDateString()}</Text>
-            
-            <Divider />
-            
-            <Title level={5}>開發者資訊</Title>
-            <Text strong>開發者：</Text>
-            <Text>旅行計劃管理系統開發團隊</Text>
-            
-            <Text strong>聯絡信箱：</Text>
-            <Text>contact@travelplan.example.com</Text>
-            
-            <Text strong>官方網站：</Text>
-            <Text>https://travelplan.example.com</Text>
-            
-            <Divider />
-            
-            <Text>  {new Date().getFullYear()} 旅行計劃管理系統 版權所有</Text>
-          </Space>
+          {!isAdmin ? (
+            // 一般用戶查看模式 - 只顯示資訊
+            <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+              <Title level={4}>旅行計劃管理系統</Title>
+              <Paragraph>
+                {settings.about.description}
+              </Paragraph>
+              
+              <Divider />
+              
+              <Text strong>版本號：</Text>
+              <Text>{settings.about.version}</Text>
+              
+              <Text strong>最後更新：</Text>
+              <Text>{new Date(settings.about.lastUpdated).toLocaleDateString()}</Text>
+              
+              <Divider />
+              
+              <Title level={5}>開發者資訊</Title>
+              <Text strong>開發者：</Text>
+              <Text>{settings.about.developerName}</Text>
+              
+              <Text strong>聯絡信箱：</Text>
+              <Text>{settings.about.contactEmail}</Text>
+              
+              <Text strong>官方網站：</Text>
+              <Text>{settings.about.websiteUrl}</Text>
+              
+              <Divider />
+              
+              <Text>{settings.about.copyright}</Text>
+            </Space>
+          ) : (
+            // 管理員編輯模式 - 顯示表單
+            <Form
+              layout="vertical"
+              initialValues={settings.about}
+              onFinish={handleAboutSubmit}
+            >
+              <Form.Item
+                name="description"
+                label="系統描述"
+                rules={[{ required: true, message: '請輸入系統描述' }]}
+              >
+                <Input.TextArea rows={4} />
+              </Form.Item>
+              
+              <Divider>系統資訊</Divider>
+              
+              <Form.Item label="版本號">
+                <Input value={settings.about.version} disabled />
+                <Text type="secondary">版本號無法手動修改，將隨系統更新自動變更</Text>
+              </Form.Item>
+              
+              <Form.Item label="最後更新日期">
+                <Input value={new Date(settings.about.lastUpdated).toLocaleDateString()} disabled />
+                <Text type="secondary">更新日期無法手動修改，將隨系統更新自動變更</Text>
+              </Form.Item>
+              
+              <Divider>開發者資訊</Divider>
+              
+              <Form.Item
+                name="developerName"
+                label="開發者名稱"
+                rules={[{ required: true, message: '請輸入開發者名稱' }]}
+              >
+                <Input />
+              </Form.Item>
+              
+              <Form.Item
+                name="contactEmail"
+                label="聯絡信箱"
+                rules={[
+                  { required: true, message: '請輸入聯絡信箱' },
+                  { type: 'email', message: '請輸入有效的電子郵件地址' }
+                ]}
+              >
+                <Input />
+              </Form.Item>
+              
+              <Form.Item
+                name="websiteUrl"
+                label="官方網站"
+                rules={[
+                  { required: true, message: '請輸入官方網站URL' },
+                  { 
+                    pattern: /^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/,
+                    message: '請輸入有效的網址，例如：https://travelplan.example.com'
+                  }
+                ]}
+                help="必須包含完整網址，例如：https://travelplan.example.com"
+              >
+                <Input placeholder="https://travelplan.example.com" />
+              </Form.Item>
+              
+              <Form.Item
+                name="copyright"
+                label="版權資訊"
+                rules={[{ required: true, message: '請輸入版權資訊' }]}
+              >
+                <Input />
+              </Form.Item>
+              
+              <Form.Item>
+                <Button 
+                  type="primary" 
+                  htmlType="submit" 
+                  loading={loading}
+                  icon={saveSuccess ? <CheckCircleOutlined /> : <SaveOutlined />}
+                  style={saveSuccess ? { backgroundColor: '#52c41a', borderColor: '#52c41a' } : {}}
+                >
+                  {saveSuccess ? '儲存成功' : '儲存關於系統資訊'}
+                </Button>
+              </Form.Item>
+            </Form>
+          )}
         </Card>
       ),
     },

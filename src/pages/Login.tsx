@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { QuestionCircleOutlined } from '@ant-design/icons';
+import UserManual from '../components/UserManual';
 
 interface User {
   id: string;
@@ -18,6 +20,7 @@ const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isManualOpen, setIsManualOpen] = useState(false);
   const navigate = useNavigate();
 
   // 預設測試帳號密碼
@@ -267,7 +270,16 @@ const Login: React.FC = () => {
             還沒有帳號？立即註冊
           </Link>
         </div>
+        <div className="mt-2 text-center">
+          <button 
+            className="text-gray-600 hover:text-blue-700 text-sm flex items-center mx-auto"
+            onClick={() => setIsManualOpen(true)}
+          >
+            <QuestionCircleOutlined className="mr-1" /> 查看使用者操作手冊
+          </button>
+        </div>
       </div>
+      <UserManual isOpen={isManualOpen} onClose={() => setIsManualOpen(false)} />
     </div>
   );
 };
