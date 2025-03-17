@@ -1,7 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
+import './theme.css'; // 引入主題樣式
 import './styles/popconfirm-fix.css'; 
+import './styles/settings-fix.css'; // 添加系統設定頁面的樣式修復
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 

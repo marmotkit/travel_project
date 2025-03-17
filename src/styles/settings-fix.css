@@ -1,0 +1,136 @@
+/* 系統設定頁面的樣式修復 */
+
+/* 設定選項卡樣式 */
+.settings-tabs .ant-tabs-nav {
+  margin-bottom: 16px;
+}
+
+/* 主題模式選擇器樣式 */
+.theme-mode-radio {
+  display: flex !important;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.theme-mode-radio .ant-radio-button-wrapper {
+  flex: 1;
+  text-align: center;
+  height: 36px;
+  line-height: 34px;
+}
+
+/* 字體大小選擇器樣式 */
+.font-size-radio {
+  display: flex !important;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.font-size-radio .ant-radio-button-wrapper {
+  flex: 1;
+  text-align: center;
+  height: 36px;
+  line-height: 34px;
+}
+
+/* 顏色選擇器樣式 */
+.theme-color-picker {
+  width: 100% !important;
+}
+
+/* 按鈕樣式 */
+.save-settings-btn,
+.export-settings-btn,
+.import-settings-btn,
+.reset-settings-btn {
+  height: 36px !important;
+  padding: 6px 16px !important;
+  font-size: 14px !important;
+  border-radius: 2px !important;
+  margin-right: 8px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.save-settings-btn {
+  min-width: 120px !important;
+}
+
+.export-settings-btn,
+.import-settings-btn,
+.reset-settings-btn {
+  min-width: 100px !important;
+}
+
+/* 匯入按鈕特殊處理 */
+.import-settings-label {
+  display: inline-block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  cursor: pointer !important;
+}
+
+.import-settings-label input[type="file"] {
+  /* 隱藏但保持可訪問性 */
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* 解決彈窗面板和按鈕問題 */
+.ant-modal-footer {
+  display: flex !important;
+  justify-content: flex-end !important;
+  padding: 10px 16px !important;
+}
+
+.ant-modal-footer .ant-btn {
+  margin-left: 8px !important;
+  height: 32px !important;
+  min-width: 80px !important;
+}
+
+/* 確保選項可見 */
+.ant-select-dropdown {
+  z-index: 1050 !important;
+}
+
+/* 確保切換開關顯示正確 */
+.custom-switch {
+  background-color: rgba(0, 0, 0, 0.25) !important;
+}
+
+.custom-switch.ant-switch-checked {
+  background-color: #1890ff !important;
+}
+
+/* 修復日期和時間選擇器的樣式 */
+.ant-picker {
+  width: 100% !important;
+  height: 36px !important;
+}
+
+/* 修復表單項間距 */
+.ant-form-item {
+  margin-bottom: 24px !important;
+}
+
+/* 修復確認彈窗的樣式 */
+.ant-modal-confirm .ant-modal-confirm-btns {
+  display: flex !important;
+  justify-content: flex-end !important;
+  margin-top: 24px !important;
+}
+
+.ant-modal-confirm .ant-modal-confirm-btns .ant-btn {
+  margin-left: 8px !important;
+  height: 32px !important;
+  min-width: 80px !important;
+}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tabs, Card, Form, Switch, Radio, Select, Input, Button, Divider, Typography, Space, ColorPicker, notification } from 'antd';
 import type { TabsProps } from 'antd';
 import { useSettings } from '../contexts/SettingsContext';
@@ -11,7 +11,7 @@ const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
 
 const SystemSettings: React.FC = () => {
-  const { settings, updateTheme, updateLocalization, updateNotifications, updateDataManagement, resetSettings } = useSettings();
+  const { settings, updateTheme, updateLocalization, updateNotifications, updateDataManagement, resetSettings, applyTheme, setSidebarCollapsed } = useSettings();
   const [resetConfirm, setResetConfirm] = useState(false);
   const [isAdmin, setIsAdmin] = useState(true);
   
@@ -21,12 +21,50 @@ const SystemSettings: React.FC = () => {
   };
 
   // 主題設定表單提交
-  const handleThemeSubmit = (values: SystemSettingsType['theme']) => {
-    updateTheme(values);
-    notification.success({
-      message: '設定已更新',
-      description: '主題設定已成功儲存',
-    });
+  const onThemeFormFinish = (values: any) => {
+    console.log('提交主題設定表單:', values);
+    
+    try {
+      // 更新主題設定 (不包含側邊欄設定，因為側邊欄設定有專門的處理方法)
+      updateTheme({
+        mode: values.mode,
+        primaryColor: values.primaryColor,
+        fontSize: values.fontSize,
+        // 不在這裡設置 sidebarCollapsed，改為專門的方法處理
+      });
+      
+      // 主題設定立即生效
+      applyTheme({
+        ...settings.theme,
+        mode: values.mode,
+        primaryColor: values.primaryColor,
+        fontSize: values.fontSize,
+        // 保持側邊欄折疊狀態不變
+        sidebarCollapsed: settings.theme.sidebarCollapsed,
+      });
+      
+      // 強制顯示成功提示訊息（使用延遲確保在DOM更新後顯示）
+      setTimeout(() => {
+        notification.destroy(); // 先清除所有現有通知
+        notification.success({
+          message: '設定已儲存',
+          description: '主題設定已成功更新',
+          placement: 'topRight',
+          duration: 4,
+          style: { zIndex: 9999 } // 確保通知顯示在最上層
+        });
+      }, 300);
+      
+      console.log('主題設定更新成功');
+    } catch (error) {
+      console.error('更新主題設定時發生錯誤:', error);
+      notification.error({
+        message: '設定儲存失敗',
+        description: '主題設定更新過程中發生錯誤',
+        placement: 'topRight',
+        duration: 4,
+      });
+    }
   };
 
   // 本地化設定表單提交
@@ -54,6 +92,19 @@ const SystemSettings: React.FC = () => {
       message: '設定已更新',
       description: '資料管理設定已成功儲存',
     });
+  };
+
+  // 側邊欄折疊設定變更處理
+  const handleSidebarCollapsedChange = (checked: boolean) => {
+    // 使用專門的方法設置側邊欄折疊狀態
+    setSidebarCollapsed(checked);
+    
+    notification.success({
+      message: '側邊欄設定已更新',
+      description: `側邊欄預設摺疊已設為${checked ? '開啟' : '關閉'}`,
+    });
+    
+    console.log('SystemSettings - 側邊欄折疊設定變更:', checked);
   };
 
   // 重置所有設定
@@ -144,14 +195,14 @@ const SystemSettings: React.FC = () => {
           <Form
             layout="vertical"
             initialValues={settings.theme}
-            onFinish={handleThemeSubmit}
+            onFinish={onThemeFormFinish}
           >
             <Form.Item
               name="mode"
               label="主題模式"
               rules={[{ required: true, message: '請選擇主題模式' }]}
             >
-              <Radio.Group>
+              <Radio.Group buttonStyle="solid" className="theme-mode-radio">
                 <Radio.Button value="light">淺色模式</Radio.Button>
                 <Radio.Button value="dark">深色模式</Radio.Button>
               </Radio.Group>
@@ -162,7 +213,7 @@ const SystemSettings: React.FC = () => {
               label="主題顏色"
               rules={[{ required: true, message: '請選擇主題顏色' }]}
             >
-              <ColorPicker />
+              <ColorPicker className="theme-color-picker" />
             </Form.Item>
 
             <Form.Item
@@ -170,7 +221,7 @@ const SystemSettings: React.FC = () => {
               label="字體大小"
               rules={[{ required: true, message: '請選擇字體大小' }]}
             >
-              <Radio.Group>
+              <Radio.Group buttonStyle="solid" className="font-size-radio">
                 <Radio.Button value="small">小</Radio.Button>
                 <Radio.Button value="medium">中</Radio.Button>
                 <Radio.Button value="large">大</Radio.Button>
@@ -181,12 +232,25 @@ const SystemSettings: React.FC = () => {
               name="sidebarCollapsed"
               label="側邊欄預設摺疊"
               valuePropName="checked"
+              tooltip="選擇側邊欄在應用啟動時是否預設為折疊狀態"
             >
-              <Switch checkedChildren="開" unCheckedChildren="關" />
+              <Switch 
+                checkedChildren="開" 
+                unCheckedChildren="關" 
+                className="custom-switch"
+                checked={settings.theme.sidebarCollapsed}
+                onChange={handleSidebarCollapsedChange}
+              />
             </Form.Item>
 
             <Form.Item>
-              <Button type="primary" htmlType="submit">
+              <Button 
+                type="primary" 
+                htmlType="submit"
+                size="large"
+                className="save-settings-btn"
+                style={{ backgroundColor: settings.theme.primaryColor, borderColor: settings.theme.primaryColor }}
+              >
                 儲存主題設定
               </Button>
             </Form.Item>
@@ -378,11 +442,20 @@ const SystemSettings: React.FC = () => {
 
             <Space direction="vertical" size="middle">
               <Space>
-                <Button type="default" onClick={handleExportSettings}>
+                <Button 
+                  type="default" 
+                  onClick={handleExportSettings}
+                  size="large" 
+                  className="export-settings-btn"
+                >
                   匯出設定
                 </Button>
-                <label htmlFor="import-settings">
-                  <Button type="default">
+                <label htmlFor="import-settings" className="import-settings-label">
+                  <Button 
+                    type="default" 
+                    size="large"
+                    className="import-settings-btn"
+                  >
                     匯入設定
                   </Button>
                   <input
@@ -397,6 +470,8 @@ const SystemSettings: React.FC = () => {
               <Button 
                 danger 
                 onClick={handleResetSettings}
+                size="large"
+                className="reset-settings-btn"
               >
                 {resetConfirm ? '確認重置所有設定' : '重置所有設定'}
               </Button>
@@ -443,7 +518,7 @@ const SystemSettings: React.FC = () => {
             
             <Divider />
             
-            <Text>© {new Date().getFullYear()} 旅行計劃管理系統 版權所有</Text>
+            <Text>  {new Date().getFullYear()} 旅行計劃管理系統 版權所有</Text>
           </Space>
         </Card>
       ),
@@ -457,7 +532,7 @@ const SystemSettings: React.FC = () => {
         <Header title="系統設定" isAdmin={isAdmin} onToggleAdmin={handleToggleAdmin} />
         <div className="p-6 overflow-y-auto bg-gray-50">
           <div className="container mx-auto">
-            <Tabs defaultActiveKey="theme" items={tabItems} />
+            <Tabs defaultActiveKey="theme" items={tabItems} className="settings-tabs" />
           </div>
         </div>
       </div>
@@ -465,4 +540,4 @@ const SystemSettings: React.FC = () => {
   );
 };
 
-export default SystemSettings; 
+export default SystemSettings;

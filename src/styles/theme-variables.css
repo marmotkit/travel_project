@@ -1,0 +1,116 @@
+:root {
+  /* 主題色系變量 */
+  --primary-color: #1890ff;
+  --primary-color-hover: #40a9ff;
+  --primary-color-active: #096dd9;
+  --primary-color-light: #e6f7ff;
+  
+  /* 字體大小變量 */
+  --font-size-base: 14px;
+  --font-size-sm: 12px;
+  --font-size-lg: 16px;
+  --font-size-xl: 18px;
+  
+  /* 深色模式背景色 */
+  --dark-bg: #141414;
+  --dark-component-bg: #1f1f1f;
+  --dark-border: #434343;
+  --dark-text: rgba(255, 255, 255, 0.85);
+  --dark-text-secondary: rgba(255, 255, 255, 0.45);
+  
+  /* 淺色模式背景色 */
+  --light-bg: #f0f2f5;
+  --light-component-bg: #ffffff;
+  --light-border: #d9d9d9;
+  --light-text: rgba(0, 0, 0, 0.85);
+  --light-text-secondary: rgba(0, 0, 0, 0.45);
+}
+
+/* 淺色主題樣式 */
+body.light-theme {
+  background-color: var(--light-bg);
+  color: var(--light-text);
+}
+
+body.light-theme .ant-card,
+body.light-theme .ant-layout-header,
+body.light-theme .ant-layout-sider,
+body.light-theme .ant-layout-content {
+  background-color: var(--light-component-bg);
+  border-color: var(--light-border);
+}
+
+/* 深色主題樣式 */
+body.dark-theme {
+  background-color: var(--dark-bg);
+  color: var(--dark-text);
+}
+
+body.dark-theme .ant-card,
+body.dark-theme .ant-layout-header,
+body.dark-theme .ant-layout-sider,
+body.dark-theme .ant-layout-content {
+  background-color: var(--dark-component-bg);
+  border-color: var(--dark-border);
+  color: var(--dark-text);
+}
+
+body.dark-theme .ant-btn,
+body.dark-theme .ant-input,
+body.dark-theme .ant-select,
+body.dark-theme .ant-form-item-label > label {
+  color: var(--dark-text);
+}
+
+/* 字體大小調整 */
+body {
+  font-size: var(--font-size-base);
+}
+
+.ant-btn-lg,
+.ant-input-lg,
+.ant-select-lg {
+  font-size: var(--font-size-lg);
+}
+
+.ant-btn-sm,
+.ant-input-sm,
+.ant-select-sm {
+  font-size: var(--font-size-sm);
+}
+
+/* 主題色調整 */
+.ant-btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.ant-btn-primary:hover {
+  background-color: var(--primary-color-hover);
+  border-color: var(--primary-color-hover);
+}
+
+.ant-checkbox-checked .ant-checkbox-inner {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.ant-switch-checked {
+  background-color: var(--primary-color);
+}
+
+.ant-radio-checked .ant-radio-inner {
+  border-color: var(--primary-color);
+}
+
+.ant-radio-inner::after {
+  background-color: var(--primary-color);
+}
+
+.ant-tabs-ink-bar {
+  background-color: var(--primary-color);
+}
+
+.ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: var(--primary-color);
+}

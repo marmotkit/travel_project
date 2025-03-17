@@ -57,7 +57,7 @@ const Header: React.FC<HeaderProps> = ({ title, isAdmin, onToggleAdmin }) => {
 
   return (
     <header className="bg-white border-b border-gray-200 py-4 px-6 flex justify-between items-center">
-      <h1 className="text-xl font-semibold text-gray-800">{title}</h1>
+      <h1 className="text-xl font-semibold text-gray-800 app-title">{title || "旅行計劃管理系統"}</h1>
       
       <div className="relative" ref={dropdownRef}>
         <button
