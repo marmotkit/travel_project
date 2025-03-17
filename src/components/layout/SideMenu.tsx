@@ -97,6 +97,11 @@ const SideMenu: React.FC<SideMenuProps> = ({ isAdmin }) => {
       icon: <SettingOutlined />,
       label: '系統設定',
     },
+    {
+      key: '/analytics',
+      icon: <BarChartOutlined />,
+      label: '報表分析',
+    },
   ];
 
   const adminItems: MenuItem[] = [
@@ -115,11 +120,6 @@ const SideMenu: React.FC<SideMenuProps> = ({ isAdmin }) => {
           key: '/settings',
           icon: <SettingOutlined />,
           label: '系統設定',
-        },
-        {
-          key: '/analytics',
-          icon: <BarChartOutlined />,
-          label: '報表分析',
         },
       ],
     },
