@@ -5,6 +5,7 @@ import Header from '../components/layout/Header';
 import UpcomingTrips from '../components/dashboard/UpcomingTrips';
 import RecentActivities from '../components/dashboard/RecentActivities';
 import TripStats from '../components/dashboard/TripStats';
+import TravelNoteReminders from '../components/dashboard/TravelNoteReminders';
 
 const Dashboard: React.FC = () => {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -131,28 +132,7 @@ const Dashboard: React.FC = () => {
             
             <div className="bg-white rounded-lg shadow-sm p-6">
               <h3 className="text-lg font-bold mb-4">旅遊事項提醒</h3>
-              <div className="space-y-4">
-                <div className="p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded">
-                  <h4 className="font-medium">日本東京之旅</h4>
-                  <p className="text-sm text-gray-600">
-                    出發前記得辦理日本旅遊保險。截止日期: 2023/12/01
-                  </p>
-                </div>
-                
-                <div className="p-4 bg-blue-50 border-l-4 border-blue-400 rounded">
-                  <h4 className="font-medium">歐洲多國行</h4>
-                  <p className="text-sm text-gray-600">
-                    3個月內需申請申根簽證。截止日期: 2024/01/15
-                  </p>
-                </div>
-                
-                <div className="p-4 bg-green-50 border-l-4 border-green-400 rounded">
-                  <h4 className="font-medium">台南美食之旅</h4>
-                  <p className="text-sm text-gray-600">
-                    訂房即將到期，請確認。截止日期: 今天
-                  </p>
-                </div>
-              </div>
+              <TravelNoteReminders limit={3} />
             </div>
           </div>
         </main>

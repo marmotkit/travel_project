@@ -94,6 +94,7 @@ const YearlyDashboard: React.FC<YearlyDashboardProps> = ({ trips }) => {
   const currentYear = new Date().getFullYear().toString();
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [yearStats, setYearStats] = useState<YearStats | null>(null);
+  const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
 
   // 產生年份選項
   const generateYearOptions = () => {
@@ -249,28 +250,21 @@ const YearlyDashboard: React.FC<YearlyDashboardProps> = ({ trips }) => {
 
       {/* 日曆視圖 - 簡單展示哪些日期有旅行 */}
       <Card title="年度旅行日曆" className="mb-6">
+        <div className="mb-4">
+          <Select
+            style={{ width: 100 }}
+            value={selectedMonth ?? (new Date().getMonth() + 1)}
+            onChange={(month) => setSelectedMonth(month)}
+          >
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(item => (
+              <Option key={item} value={item}>{item}月</Option>
+            ))}
+          </Select>
+        </div>
         <Calendar 
           fullscreen={false}
-          headerRender={({ value, onChange }) => {
-            // 僅顯示月份，年份已在頁面頂部選擇
-            const month = value.month() + 1;
-            return (
-              <div style={{ padding: 8 }}>
-                <Select
-                  value={month}
-                  onChange={(newMonth: number) => {
-                    const newValue = value.clone();
-                    newValue.month(newMonth - 1);
-                    onChange(newValue);
-                  }}
-                >
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(item => (
-                    <Option key={item} value={item}>{item}月</Option>
-                  ))}
-                </Select>
-              </div>
-            );
-          }}
+          headerRender={() => null}
+          value={dayjs(`${selectedYear}-${selectedMonth || new Date().getMonth() + 1}-01`)}
           dateCellRender={(date) => {
             // 標記有旅行的日期
             const dateStr = date.format('YYYY-MM-DD');
