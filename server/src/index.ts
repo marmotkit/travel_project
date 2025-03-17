@@ -8,13 +8,10 @@ import { errorHandler } from './middlewares/errorMiddleware';
 import userRoutes from './routes/userRoutes';
 import tripRoutes from './routes/tripRoutes';
 import photoRoutes from './routes/photoRoutes';
-import * as azureStorage from './services/azureStorageService';
+import { initContainer } from './services/azureStorageService';
 
 // 加載環境變量
 dotenv.config();
-
-// 初始化 Azure 存儲容器
-azureStorage.initContainer().catch(console.error);
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -46,9 +43,26 @@ if (process.env.NODE_ENV === 'production') {
 app.use(errorHandler);
 
 // 啟動服務器
-app.listen(PORT, () => {
-  console.log(`服務器運行在: http://localhost:${PORT}`);
-  console.log(`環境: ${process.env.NODE_ENV || 'development'}`);
-});
+const startServer = async () => {
+  try {
+    // 嘗試初始化 Azure 存儲容器，但如果失敗，不要阻止服務器啟動
+    try {
+      await initContainer();
+      console.log('Azure 存儲容器已初始化');
+    } catch (error) {
+      console.warn('Azure 存儲容器初始化失敗，但服務器將繼續啟動:', error);
+    }
+
+    app.listen(PORT, () => {
+      console.log(`服務器運行在: http://localhost:${PORT}`);
+      console.log(`環境: ${process.env.NODE_ENV || 'development'}`);
+    });
+  } catch (error) {
+    console.error('服務器啟動失敗:', error);
+    console.error('應用將終止運行');
+  }
+};
+
+startServer();
 
 export default app;
