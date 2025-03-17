@@ -10,7 +10,7 @@ services:
         fromService:
           name: travel-plan-backend
           type: web
-          property: origin
+          property: url
 
   # 後端 API 服務配置
   - type: web
