@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 // 系統設定類型定義
 export type SystemSettings = {
@@ -91,11 +91,11 @@ const SettingsContext = createContext<SettingsContextType | undefined>(undefined
 // 設定提供者組件
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [settings, setSettings] = useState<SystemSettings>(defaultSettings);
-  // 單獨跟踪側邊欄狀態，用於立即同步到界面
-  const [sidebarCollapsed, setSidebarCollapsedState] = useState<boolean>(defaultSettings.theme.sidebarCollapsed);
+  // 單獨跟踪側邊欄狀態，用於UI更新
+  const [, setSidebarCollapsedState] = useState<boolean>(defaultSettings.theme.sidebarCollapsed);
 
   // 應用主題設定到DOM
-  const applyTheme = (theme: SystemSettings['theme']) => {
+  const applyTheme = useCallback((theme: SystemSettings['theme']) => {
     console.log('正在應用主題設定:', theme);
     
     try {
@@ -117,19 +117,19 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       document.documentElement.style.setProperty('--font-size-xl', theme.fontSize === 'small' ? '18px' : theme.fontSize === 'medium' ? '20px' : '24px');
       
       // 強制應用主題顏色到主要元素
-      const primaryColorElements = document.querySelectorAll('.ant-btn-primary');
-      primaryColorElements.forEach(el => {
-        if (el instanceof HTMLElement) {
-          el.style.backgroundColor = theme.primaryColor;
-          el.style.borderColor = theme.primaryColor;
+      const primaryColorElements = document.querySelectorAll('.ant-btn-primary, .ant-checkbox-checked, .ant-switch-checked, .ant-radio-checked');
+      primaryColorElements.forEach(element => {
+        if (element instanceof HTMLElement) {
+          element.style.backgroundColor = theme.primaryColor;
+          element.style.borderColor = theme.primaryColor;
         }
       });
       
-      console.log('主題設定應用完成');
+      console.log('主題應用完成');
     } catch (error) {
-      console.error('應用主題設定時發生錯誤:', error);
+      console.error('應用主題時發生錯誤:', error);
     }
-  };
+  }, []);
 
   // 專門用於設置側邊欄摺疊狀態
   const setSidebarCollapsed = (collapsed: boolean) => {
@@ -215,29 +215,19 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   // 初始加載設定
   useEffect(() => {
-    const savedSettings = localStorage.getItem('systemSettings');
-    if (savedSettings) {
-      try {
-        const parsedSettings = JSON.parse(savedSettings) as SystemSettings;
-        setSettings(parsedSettings);
-        // 立即應用主題設定
-        applyTheme(parsedSettings.theme);
-        // 設置側邊欄摺疊狀態
-        setSidebarCollapsedState(parsedSettings.theme.sidebarCollapsed);
-        console.log('從localStorage載入側邊欄設定:', parsedSettings.theme.sidebarCollapsed);
-      } catch (error) {
-        console.error('解析localStorage中的設定失敗:', error);
-        // 如果解析失敗，使用默認設定
-        setSettings(defaultSettings);
-        applyTheme(defaultSettings.theme);
-        setSidebarCollapsedState(defaultSettings.theme.sidebarCollapsed);
-      }
+    const storedSettings = localStorage.getItem('systemSettings');
+    
+    if (storedSettings) {
+      const parsedSettings = JSON.parse(storedSettings);
+      setSettings(parsedSettings);
+      applyTheme(parsedSettings.theme);
+      setSidebarCollapsedState(parsedSettings.theme.sidebarCollapsed);
     } else {
       // 首次使用，應用默認主題
       applyTheme(defaultSettings.theme);
       setSidebarCollapsedState(defaultSettings.theme.sidebarCollapsed);
     }
-  }, []);
+  }, [applyTheme]);
 
   // 保存設定到本地存儲
   useEffect(() => {

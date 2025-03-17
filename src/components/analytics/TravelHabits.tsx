@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Typography, Row, Col, Select, Tabs, Statistic, Empty, Divider, List, Tag, Progress } from 'antd';
+import { 
+  Card, Typography, Row, Col, Select, Tabs, Statistic, Empty, Divider, List, Tag 
+} from 'antd';
 import { 
   ClockCircleOutlined, TeamOutlined, CarOutlined, HomeOutlined, 
-  CalendarOutlined, GlobalOutlined, DollarOutlined, UserOutlined, HomeFilled 
+  CalendarOutlined, GlobalOutlined, UserOutlined 
 } from '@ant-design/icons';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { 
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell 
+} from 'recharts';
 
 const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;

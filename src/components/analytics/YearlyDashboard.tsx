@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Row, Col, Statistic, Calendar, Badge, Select, Tag, Typography, Divider, Empty } from 'antd';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { Card, Row, Col, Statistic, Calendar, Select, Typography } from 'antd';
 import { 
-  CompassOutlined, TeamOutlined, GlobalOutlined, 
-  CalendarOutlined, TrophyOutlined, FireOutlined,
-  ClockCircleOutlined, CarOutlined, HomeFilled
+  GlobalOutlined, 
+  CalendarOutlined, 
+  ClockCircleOutlined, HomeFilled
 } from '@ant-design/icons';
-import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title as ChartTitle, Tooltip as ChartTooltip, Legend as ChartLegend } from 'chart.js';
+import { Bar } from 'react-chartjs-2';
 
 // 註冊 Chart.js 組件
 ChartJS.register(CategoryScale, LinearScale, BarElement, ChartTitle, ChartTooltip, ChartLegend);
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 const { Option } = Select;
 
 interface YearlyDashboardProps {
@@ -41,9 +40,25 @@ const calculateYearlyStats = (trips: any[], year: string): YearStats => {
   const countries = new Set<string>();
   const cities = new Set<string>();
   yearTrips.forEach(trip => {
-    const [city, country] = trip.destination.split(', ');
-    if (country) countries.add(country);
-    if (city) cities.add(city);
+    // 嘗試從目的地字串解析城市和國家
+    if (trip.destination) {
+      const parts = trip.destination.split(', ');
+      // 如果有兩個部分，我們假設格式是 "城市, 國家"
+      if (parts.length >= 2) {
+        const city = parts[0];
+        const country = parts[1];
+        if (country) countries.add(country);
+        if (city) cities.add(city);
+      } else if (parts.length === 1) {
+        // 如果只有一個部分，將其添加到城市
+        cities.add(parts[0]);
+      }
+    }
+    
+    // 如果直接有國家屬性，也將其添加到國家集合中
+    if (trip.country) {
+      countries.add(trip.country);
+    }
   });
 
   // 計算旅行天數
@@ -87,8 +102,6 @@ const calculateYearlyStats = (trips: any[], year: string): YearStats => {
     monthlyTripData,
   };
 };
-
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#FF6B6B', '#6B66FF'];
 
 const YearlyDashboard: React.FC<YearlyDashboardProps> = ({ trips }) => {
   const currentYear = new Date().getFullYear().toString();

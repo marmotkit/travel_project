@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Row, Col, Card, Statistic, Select, Empty, Table, Tag, Typography, List } from 'antd';
+import { Row, Col, Card, Statistic, Select, Empty, Table, Tag, Typography } from 'antd';
 import { DollarOutlined, ShoppingOutlined, PercentageOutlined, WalletOutlined } from '@ant-design/icons';
 import { Pie, Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
@@ -8,7 +8,7 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearSca
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
 
 const { Option } = Select;
-const { Title: AntTitle, Paragraph } = Typography;
+const { Title: AntTitle } = Typography;
 
 interface YearlyExpensesProps {
   trips: any[];

@@ -16,9 +16,6 @@ import {
   SettingOutlined,
   TeamOutlined,
   BarChartOutlined,
-  FileOutlined,
-  CameraOutlined,
-  NotificationOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined
 } from '@ant-design/icons';

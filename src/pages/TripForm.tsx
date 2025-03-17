@@ -9,6 +9,7 @@ interface Trip {
   id: string;
   title: string;
   destination: string;
+  country: string;
   startDate: string;
   endDate: string;
   status: 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
@@ -32,6 +33,7 @@ const TripForm: React.FC = () => {
   // 表單字段
   const [title, setTitle] = useState('');
   const [destination, setDestination] = useState('');
+  const [country, setCountry] = useState(''); // 添加國家欄位
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [status, setStatus] = useState<Trip['status']>('upcoming');
@@ -45,6 +47,64 @@ const TripForm: React.FC = () => {
   // 新參與者輸入字段
   const [newParticipantName, setNewParticipantName] = useState('');
   const [newParticipantEmail, setNewParticipantEmail] = useState('');
+
+  // 當目的地變更時嘗試自動判斷國家
+  useEffect(() => {
+    if (destination && !country) {
+      // 從目的地字串中嘗試提取國家信息
+      const parts = destination.split(', ');
+      if (parts.length >= 2) {
+        // 假設最後一部分是國家
+        setCountry(parts[parts.length - 1]);
+      }
+    }
+  }, [destination, country]);
+
+  // 常見城市與國家的映射，用於自動判斷功能
+  const cityCountryMap: Record<string, string> = {
+    '台北': '台灣',
+    '高雄': '台灣',
+    '台中': '台灣',
+    '東京': '日本',
+    '大阪': '日本',
+    '京都': '日本',
+    '首爾': '韓國',
+    '香港': '香港',
+    '曼谷': '泰國',
+    '新加坡': '新加坡',
+    '倫敦': '英國',
+    '紐約': '美國',
+    '洛杉磯': '美國',
+    '巴黎': '法國',
+    '悉尼': '澳洲',
+    '上海': '中國',
+    '北京': '中國'
+  };
+
+  // 檢查目的地並建議國家
+  const suggestCountry = (city: string) => {
+    // 檢查是否為已知城市
+    for (const [knownCity, country] of Object.entries(cityCountryMap)) {
+      if (city.includes(knownCity)) {
+        return country;
+      }
+    }
+    return '';
+  };
+
+  // 當目的地變更時嘗試建議國家
+  const handleDestinationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newDestination = e.target.value;
+    setDestination(newDestination);
+    
+    // 如果國家欄位為空或用戶正在編輯目的地，嘗試自動判斷
+    if (!country || country.trim() === '') {
+      const suggestedCountry = suggestCountry(newDestination);
+      if (suggestedCountry) {
+        setCountry(suggestedCountry);
+      }
+    }
+  };
 
   // 可用類別選項
   const categoryOptions = [
@@ -98,6 +158,7 @@ const TripForm: React.FC = () => {
         // 填充表單數據
         setTitle(trip.title);
         setDestination(trip.destination);
+        setCountry(trip.country); // 添加國家欄位
         setStartDate(trip.startDate);
         setEndDate(trip.endDate);
         setStatus(trip.status);
@@ -139,6 +200,7 @@ const TripForm: React.FC = () => {
               ...trip,
               title,
               destination,
+              country, // 添加國家欄位
               startDate,
               endDate,
               status,
@@ -172,6 +234,7 @@ const TripForm: React.FC = () => {
           id: uuidv4(),
           title,
           destination,
+          country, // 添加國家欄位
           startDate,
           endDate,
           status,
@@ -294,10 +357,26 @@ const TripForm: React.FC = () => {
                   type="text"
                   id="destination"
                   value={destination}
-                  onChange={(e) => setDestination(e.target.value)}
+                  onChange={handleDestinationChange}
                   required
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="例如：台北市、日本東京"
+                />
+              </div>
+
+              {/* 國家 */}
+              <div className="md:col-span-2">
+                <label htmlFor="country" className="block text-sm font-medium text-gray-700 mb-1">
+                  國家 *
+                </label>
+                <input
+                  type="text"
+                  id="country"
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="例如：台灣、日本"
                 />
               </div>
 

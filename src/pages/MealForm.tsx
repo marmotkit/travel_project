@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import SideMenu from '../components/layout/SideMenu';
@@ -40,6 +40,7 @@ const MealForm: React.FC = () => {
   const [itineraryDays, setItineraryDays] = useState<ItineraryDay[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [photoUrls, setPhotoUrls] = useState<string[]>([]);
   
   // 表單狀態
   const [formData, setFormData] = useState<{
@@ -107,14 +108,8 @@ const MealForm: React.FC = () => {
   // 推薦菜品輸入狀態
   const [newDish, setNewDish] = useState('');
   
-  // 初始化頁面
-  useEffect(() => {
-    checkAuth();
-    loadData();
-  }, [id]);
-  
   // 檢查使用者權限
-  const checkAuth = () => {
+  const checkAuth = useCallback(() => {
     const userStr = localStorage.getItem('user');
     if (!userStr) {
       navigate('/login');
@@ -127,90 +122,68 @@ const MealForm: React.FC = () => {
     } catch (err) {
       navigate('/login');
     }
-  };
-  
+  }, [navigate]);
+
   // 載入數據
-  const loadData = async () => {
+  const loadData = useCallback(() => {
     setIsLoading(true);
-    setErrorMessage(null);
     
     // 載入旅程數據
     const tripsStr = localStorage.getItem('trips');
     if (tripsStr) {
       try {
-        const parsedTrips = JSON.parse(tripsStr);
-        setTrips(parsedTrips);
+        const trips = JSON.parse(tripsStr);
+        setTrips(trips);
       } catch (error) {
         console.error('解析旅程數據時出錯:', error);
       }
     }
     
     // 載入行程日數據
-    const itineraryStr = localStorage.getItem('itinerary');
-    if (itineraryStr) {
+    const itineraryDaysStr = localStorage.getItem('itineraryDays');
+    if (itineraryDaysStr) {
       try {
-        const parsedItinerary = JSON.parse(itineraryStr);
-        setItineraryDays(parsedItinerary);
+        const days = JSON.parse(itineraryDaysStr);
+        setItineraryDays(days);
       } catch (error) {
-        console.error('解析行程數據時出錯:', error);
+        console.error('解析行程日數據時出錯:', error);
       }
     }
     
-    // 如果是編輯模式，載入餐飲數據
-    if (isEditMode && id) {
-      const mealsStr = localStorage.getItem('meals');
-      
-      if (mealsStr) {
-        try {
-          const parsedMeals: Meal[] = JSON.parse(mealsStr);
-          const targetMeal = parsedMeals.find(meal => meal.id === id);
-          
-          if (targetMeal) {
-            setFormData({
-              tripId: targetMeal.tripId,
-              itineraryDayId: targetMeal.itineraryDayId,
-              type: targetMeal.type,
-              restaurantName: targetMeal.restaurantName,
-              category: targetMeal.category,
-              address: targetMeal.address,
-              reservationTime: targetMeal.reservationTime,
-              latestArrivalTime: targetMeal.latestArrivalTime || '',
-              status: targetMeal.status,
-              reservationNumber: targetMeal.reservationNumber || '',
-              numberOfPeople: targetMeal.numberOfPeople,
-              estimatedCost: targetMeal.estimatedCost,
-              currency: targetMeal.currency || 'TWD',
-              contactPhone: targetMeal.contactPhone || '',
-              contactEmail: targetMeal.contactEmail || '',
-              websiteUrl: targetMeal.websiteUrl || '',
-              dietaryOptions: {
-                vegetarian: targetMeal.dietaryOptions.vegetarian,
-                vegan: targetMeal.dietaryOptions.vegan,
-                glutenFree: targetMeal.dietaryOptions.glutenFree,
-                nutFree: targetMeal.dietaryOptions.nutFree,
-                dairyFree: targetMeal.dietaryOptions.dairyFree,
-                other: targetMeal.dietaryOptions.other || ''
-              },
-              specialRequests: targetMeal.specialRequests || '',
-              recommendedDishes: targetMeal.recommendedDishes || [],
-              notes: targetMeal.notes || '',
-              googleMapsUrl: targetMeal.googleMapsUrl || '',
-              rating: targetMeal.rating
-            });
-          } else {
-            setErrorMessage('找不到指定的餐飲資料');
-          }
-        } catch (error) {
-          console.error('解析餐飲數據時出錯:', error);
-          setErrorMessage('解析餐飲數據時出錯');
+    // 載入餐飲數據
+    const mealsStr = localStorage.getItem('meals');
+    if (mealsStr) {
+      try {
+        const meals = JSON.parse(mealsStr);
+        const existingMeal = id ? meals.find((meal: any) => meal.id === id) : null;
+        
+        if (existingMeal) {
+          setFormData({
+            ...existingMeal,
+            dietary: {
+              vegetarian: existingMeal.vegetarian || false,
+              vegan: existingMeal.vegan || false,
+              glutenFree: existingMeal.glutenFree || false,
+              nutFree: existingMeal.nutFree || false,
+              dairyFree: existingMeal.dairyFree || false,
+              other: existingMeal.other || ''
+            }
+          });
+          setPhotoUrls(existingMeal.photoUrls || []);
         }
-      } else {
-        setErrorMessage('尚未創建任何餐飲');
+      } catch (error) {
+        console.error('解析餐飲數據時出錯:', error);
       }
     }
     
     setIsLoading(false);
-  };
+  }, [id, isEditMode]);
+
+  // 初始化頁面
+  useEffect(() => {
+    checkAuth();
+    loadData();
+  }, [checkAuth, loadData]);
   
   // 處理表單變更
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -901,7 +874,7 @@ const MealForm: React.FC = () => {
                       value={formData.specialRequests}
                       onChange={handleInputChange}
                       className="w-full p-3 border border-gray-300 rounded-md min-h-[80px]"
-                      placeholder="例如：需要兒童座椅、需要無障礙設施等"
+                      placeholder="其他想記錄的信息"
                     />
                   </div>
                 </div>
@@ -1021,4 +994,3 @@ const MealForm: React.FC = () => {
 };
 
 export default MealForm;
-

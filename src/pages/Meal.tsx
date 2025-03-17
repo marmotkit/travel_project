@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SideMenu from '../components/layout/SideMenu';
 import Header from '../components/layout/Header';
@@ -86,18 +86,12 @@ const Meal: React.FC = () => {
   const [selectedTripId, setSelectedTripId] = useState<string>('');
   const [itineraryDays, setItineraryDays] = useState<ItineraryDay[]>([]);
   const [meals, setMeals] = useState<Meal[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [mealToDelete, setMealToDelete] = useState<string | null>(null);
 
-  // 初始化頁面
-  useEffect(() => {
-    checkAuth();
-    loadData();
-  }, []);
-
   // 檢查使用者權限
-  const checkAuth = () => {
+  const checkAuth = useCallback(() => {
     const userStr = localStorage.getItem('user');
     if (!userStr) {
       navigate('/login');
@@ -110,36 +104,31 @@ const Meal: React.FC = () => {
     } catch (err) {
       navigate('/login');
     }
-  };
+  }, [navigate]);
 
   // 載入數據
-  const loadData = () => {
+  const loadData = useCallback(() => {
     setIsLoading(true);
     
     // 載入旅程數據
     const tripsStr = localStorage.getItem('trips');
     if (tripsStr) {
       try {
-        const parsedTrips = JSON.parse(tripsStr);
-        setTrips(parsedTrips);
-        
-        // 如果有旅程且尚未選擇，預設選擇第一個
-        if (parsedTrips.length > 0 && !selectedTripId) {
-          setSelectedTripId(parsedTrips[0].id);
-        }
+        const trips = JSON.parse(tripsStr);
+        setTrips(trips);
       } catch (error) {
         console.error('解析旅程數據時出錯:', error);
       }
     }
     
     // 載入行程日數據
-    const itineraryStr = localStorage.getItem('itinerary');
-    if (itineraryStr) {
+    const itineraryDaysStr = localStorage.getItem('itineraryDays');
+    if (itineraryDaysStr) {
       try {
-        const parsedItinerary = JSON.parse(itineraryStr);
-        setItineraryDays(parsedItinerary);
+        const days = JSON.parse(itineraryDaysStr);
+        setItineraryDays(days);
       } catch (error) {
-        console.error('解析行程數據時出錯:', error);
+        console.error('解析行程日數據時出錯:', error);
       }
     }
     
@@ -147,18 +136,15 @@ const Meal: React.FC = () => {
     const mealsStr = localStorage.getItem('meals');
     if (mealsStr) {
       try {
-        const parsedMeals = JSON.parse(mealsStr);
-        setMeals(parsedMeals);
+        const meals = JSON.parse(mealsStr);
+        setMeals(meals);
       } catch (error) {
         console.error('解析餐飲數據時出錯:', error);
       }
-    } else {
-      // 如果沒有餐飲數據，初始化空數組
-      setMeals([]);
     }
     
     setIsLoading(false);
-  };
+  }, []);
 
   // 根據行程日取得餐飲數據
   const getMealsByDay = (): ItineraryDayWithMeals[] => {
@@ -428,19 +414,19 @@ const Meal: React.FC = () => {
                   <div className="flex space-x-2 mt-3">
                     <button
                       onClick={() => handleViewMeal(meal.id)}
-                      className="flex-1 px-3 py-1.5 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+                      className="flex-1 px-3 py-1.5 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
                     >
                       查看
                     </button>
                     <button
                       onClick={() => handleEditMeal(meal.id)}
-                      className="flex-1 px-3 py-1.5 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
+                      className="flex-1 px-3 py-1.5 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors"
                     >
                       編輯
                     </button>
                     <button
                       onClick={() => handleConfirmDelete(meal.id)}
-                      className="flex-1 px-3 py-1.5 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
+                      className="flex-1 px-3 py-1.5 bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors"
                     >
                       刪除
                     </button>
@@ -524,19 +510,19 @@ const Meal: React.FC = () => {
                 <div className="flex space-x-2 mt-3">
                   <button
                     onClick={() => handleViewMeal(meal.id)}
-                    className="flex-1 px-3 py-1.5 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+                    className="flex-1 px-3 py-1.5 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
                   >
                     查看
                   </button>
                   <button
                     onClick={() => handleEditMeal(meal.id)}
-                    className="flex-1 px-3 py-1.5 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
+                    className="flex-1 px-3 py-1.5 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors"
                   >
                     編輯
                   </button>
                   <button
                     onClick={() => handleConfirmDelete(meal.id)}
-                    className="flex-1 px-3 py-1.5 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
+                    className="flex-1 px-3 py-1.5 bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors"
                   >
                     刪除
                   </button>
@@ -584,6 +570,12 @@ const Meal: React.FC = () => {
       </div>
     );
   };
+
+  // 初始化頁面
+  useEffect(() => {
+    checkAuth();
+    loadData();
+  }, [checkAuth, loadData]);
 
   return (
     <div className="flex h-screen overflow-hidden">

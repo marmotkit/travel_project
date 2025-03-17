@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import UserManual from '../components/UserManual';
+import { useAuth } from '../contexts/AuthContext';
 
 interface User {
   id: string;
@@ -22,10 +23,18 @@ const Login: React.FC = () => {
   const [error, setError] = useState('');
   const [isManualOpen, setIsManualOpen] = useState(false);
   const navigate = useNavigate();
+  const { login, isAuthenticated } = useAuth();
 
   // 預設測試帳號密碼
   const testEmail = 'test@example.com';
   const testPassword = 'password123';
+
+  // 如果已經登入，直接導向儀表板
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    }
+  }, [isAuthenticated, navigate]);
 
   // 初始化用戶資料
   useEffect(() => {
@@ -104,112 +113,23 @@ const Login: React.FC = () => {
     }
   }, []);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     
-    // 清除前後空格避免輸入問題
-    const trimmedEmail = email.trim();
-    
     try {
-      // 從 localStorage 中獲取用戶資料
-      const usersStr = localStorage.getItem('users');
-      if (!usersStr) {
-        console.error('用戶資料不存在，重新初始化...');
-        // 強制初始化用戶資料
-        const mockUsers = [
-          {
-            id: '2',
-            username: 'liming',
-            email: testEmail,
-            fullName: '李明',
-            role: 'admin',
-            status: 'active',
-            password: testPassword,
-            createdAt: '2023-01-10T00:00:00.000Z',
-            lastLogin: new Date().toISOString(),
-            loginCount: 1
-          }
-        ];
-        localStorage.setItem('users', JSON.stringify(mockUsers));
-        
-        // 如果輸入的是測試帳號，允許直接登入
-        if (trimmedEmail === testEmail && password === testPassword) {
-          // 直接設置登入用戶資訊
-          localStorage.setItem('user', JSON.stringify({
-            id: '2',
-            username: 'liming',
-            email: testEmail,
-            fullName: '李明',
-            role: 'admin',
-            status: 'active',
-            isAdmin: true,
-            lastLogin: new Date().toISOString(),
-            loginCount: 1
-          }));
-          
-          navigate('/dashboard');
-        } else {
-          setError('電子郵件或密碼不正確');
-        }
-        return;
-      }
+      // 使用 AuthContext 的 login 方法進行身份驗證
+      const success = await login(email, password);
       
-      // 從用戶列表中查找匹配的電子郵件
-      const users: User[] = JSON.parse(usersStr);
-      console.log('用戶列表:', users);
-      
-      // 不區分大小寫比對電子郵件
-      const foundUser = users.find(user => 
-        user.email.toLowerCase() === trimmedEmail.toLowerCase()
-      );
-      
-      console.log('找到的用戶:', foundUser);
-      
-      if (foundUser) {
-        // 檢查用戶狀態是否為活躍
-        if (foundUser.status === 'inactive') {
-          setError('此帳號已被停用，請聯絡管理員');
-          return;
-        }
-        
-        // 驗證密碼
-        if (foundUser.password !== password) {
-          setError('電子郵件或密碼不正確');
-          return;
-        }
-        
-        // 更新最後登入時間
-        const updatedUsers = users.map(user => {
-          if (user.email.toLowerCase() === trimmedEmail.toLowerCase()) {
-            return {
-              ...user,
-              lastLogin: new Date().toISOString(),
-              loginCount: (user.loginCount || 0) + 1
-            };
-          }
-          return user;
-        });
-        
-        localStorage.setItem('users', JSON.stringify(updatedUsers));
-        
-        // 將用戶信息存儲到 localStorage 中
-        localStorage.setItem('user', JSON.stringify({
-          ...foundUser,
-          lastLogin: new Date().toISOString(),
-          loginCount: (foundUser.loginCount || 0) + 1,
-          isAdmin: foundUser.role === 'admin'
-        }));
-        
-        // 導航到儀表板
+      if (success) {
+        // 登入成功後導航到儀表板
         navigate('/dashboard');
       } else {
-        console.error('找不到匹配的用戶記錄，檢查用戶名是否正確');
         setError('電子郵件或密碼不正確');
       }
-    } catch (err) {
-      console.error('登錄時出錯:', err);
-      setError('登錄過程中出現錯誤');
+    } catch (error) {
+      console.error('登入過程發生錯誤:', error);
+      setError('登入過程發生錯誤，請稍後再試');
     }
   };
 

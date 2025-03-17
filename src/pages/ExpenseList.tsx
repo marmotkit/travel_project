@@ -217,7 +217,7 @@ const ExpenseList: React.FC = () => {
     if (dateRange && dateRange[0] && dateRange[1]) {
       result = result.filter((expense) => {
         const expenseDate = expense.expenseDateObj;
-        return expenseDate.isAfter(dateRange[0], 'day') && expenseDate.isBefore(dateRange[1], 'day') || 
+        return (expenseDate.isAfter(dateRange[0], 'day') && expenseDate.isBefore(dateRange[1], 'day')) || 
                expenseDate.isSame(dateRange[0], 'day') || expenseDate.isSame(dateRange[1], 'day');
       });
     }
