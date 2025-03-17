@@ -2,6 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import SideMenu from '../components/layout/SideMenu';
 import Header from '../components/layout/Header';
+import { HtmlGuideService } from '../services/htmlGuideService';
+import { Accommodation } from './Accommodation';
+import { Transportation } from './Transportation';
+import { message } from 'antd';
+import { FileOutlined } from '@ant-design/icons';
 
 interface Trip {
   id: string;
@@ -20,6 +25,35 @@ interface Trip {
   updatedAt: string;
 }
 
+interface ItineraryDay {
+  id: string;
+  tripId: string;
+  date: string;
+  dayNumber: number;
+  title: string;
+  description: string;
+  activities: ItineraryActivity[];
+  accommodationId?: string;
+  transportationIds?: string[];
+  mealIds?: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface ItineraryActivity {
+  id: string;
+  startTime: string;
+  endTime: string;
+  title: string;
+  description: string;
+  location: string;
+  address?: string;
+  cost?: number;
+  currency?: string;
+  category: 'sightseeing' | 'activity' | 'transportation' | 'accommodation' | 'meal' | 'other';
+  notes?: string;
+}
+
 const TripDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -27,6 +61,10 @@ const TripDetail: React.FC = () => {
   const [trip, setTrip] = useState<Trip | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isHtmlGenerating, setIsHtmlGenerating] = useState(false);
+  const [itineraryDays, setItineraryDays] = useState<ItineraryDay[]>([]);
+  const [accommodations, setAccommodations] = useState<Accommodation[]>([]);
+  const [transportations, setTransportations] = useState<Transportation[]>([]);
 
   // 類別選項查詢表
   const categoryMap: Record<string, string> = {
@@ -81,9 +119,60 @@ const TripDetail: React.FC = () => {
         }
 
         setTrip(foundTrip);
+        
+        // 加載行程日數據
+        loadItineraryDays(foundTrip.id);
+        
+        // 加載住宿數據
+        loadAccommodations(foundTrip.id);
+        
+        // 加載交通數據
+        loadTransportations(foundTrip.id);
       } catch (err) {
         setError('加載旅程數據時出錯');
         console.error(err);
+      }
+    };
+    
+    // 加載行程日數據
+    const loadItineraryDays = (tripId: string) => {
+      try {
+        const itineraryDaysStr = localStorage.getItem('itineraryDays');
+        if (itineraryDaysStr) {
+          const allItineraryDays: ItineraryDay[] = JSON.parse(itineraryDaysStr);
+          const tripItineraryDays = allItineraryDays.filter(day => day.tripId === tripId);
+          setItineraryDays(tripItineraryDays);
+        }
+      } catch (err) {
+        console.error('加載行程日數據時出錯', err);
+      }
+    };
+    
+    // 加載住宿數據
+    const loadAccommodations = (tripId: string) => {
+      try {
+        const accommodationsStr = localStorage.getItem('accommodations');
+        if (accommodationsStr) {
+          const allAccommodations: Accommodation[] = JSON.parse(accommodationsStr);
+          const tripAccommodations = allAccommodations.filter(acc => acc.tripId === tripId);
+          setAccommodations(tripAccommodations);
+        }
+      } catch (err) {
+        console.error('加載住宿數據時出錯', err);
+      }
+    };
+    
+    // 加載交通數據
+    const loadTransportations = (tripId: string) => {
+      try {
+        const transportationsStr = localStorage.getItem('transportations');
+        if (transportationsStr) {
+          const allTransportations: Transportation[] = JSON.parse(transportationsStr);
+          const tripTransportations = allTransportations.filter(trans => trans.tripId === tripId);
+          setTransportations(tripTransportations);
+        }
+      } catch (err) {
+        console.error('加載交通數據時出錯', err);
       }
     };
 
@@ -135,22 +224,72 @@ const TripDetail: React.FC = () => {
   };
 
   const handleDeleteTrip = () => {
-    if (!trip) return;
-    
-    if (window.confirm('確定要刪除這個旅程嗎？此操作無法復原。')) {
+    if (window.confirm('確定要刪除此旅程嗎？此操作無法撤銷。')) {
       try {
         const tripsStr = localStorage.getItem('trips');
         if (!tripsStr) return;
         
         const trips: Trip[] = JSON.parse(tripsStr);
-        const updatedTrips = trips.filter(t => t.id !== trip.id);
+        const updatedTrips = trips.filter(trip => trip.id !== id);
         
         localStorage.setItem('trips', JSON.stringify(updatedTrips));
+        
         navigate('/trips');
       } catch (err) {
         setError('刪除旅程時出錯');
         console.error(err);
       }
+    }
+  };
+  
+  // 生成並打開HTML旅遊手冊
+  const handleGenerateHtmlGuide = () => {
+    if (!trip) return;
+    
+    try {
+      setIsHtmlGenerating(true);
+      message.loading({
+        content: '正在生成HTML旅遊手冊，請稍候...',
+        duration: 0,
+        key: 'htmlGeneration'
+      });
+      
+      // 使用HTML服務生成旅遊手冊
+      const htmlContent = HtmlGuideService.generateTravelGuide(
+        trip, 
+        itineraryDays, 
+        accommodations, 
+        transportations
+      );
+      
+      // 關閉載入消息
+      message.destroy('htmlGeneration');
+      
+      // 在新窗口打開HTML內容
+      const newWindow = window.open('', '_blank');
+      if (newWindow) {
+        newWindow.document.write(htmlContent);
+        newWindow.document.close();
+        newWindow.focus();
+      } else {
+        message.warning({
+          content: '請允許彈出窗口以顯示旅遊手冊',
+          duration: 3
+        });
+      }
+      
+      message.success({
+        content: '旅遊手冊已生成',
+        duration: 3
+      });
+    } catch (error) {
+      console.error('生成HTML時出錯', error);
+      message.error({
+        content: '生成旅遊手冊時出錯',
+        duration: 3
+      });
+    } finally {
+      setIsHtmlGenerating(false);
     }
   };
 
@@ -221,6 +360,14 @@ const TripDetail: React.FC = () => {
               </div>
               
               <div className="flex space-x-2">
+                <button
+                  onClick={handleGenerateHtmlGuide}
+                  disabled={isHtmlGenerating}
+                  className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <FileOutlined className="mr-2" />
+                  {isHtmlGenerating ? '生成中...' : '查看旅遊手冊'}
+                </button>
                 <Link
                   to={`/trips/${trip.id}/edit`}
                   className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 flex items-center"
