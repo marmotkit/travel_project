@@ -1,0 +1,60 @@
+services:
+  # 前端 Web 服務配置
+  - type: web
+    name: travel-plan-frontend
+    env: static
+    buildCommand: npm run build
+    staticPublishPath: ./build
+    envVars:
+      - key: REACT_APP_API_URL
+        fromService:
+          name: travel-plan-backend
+          type: web
+          property: origin
+
+  # 後端 API 服務配置
+  - type: web
+    name: travel-plan-backend
+    env: node
+    region: singapore
+    plan: free
+    buildCommand: cd server && npm install && npm run build
+    startCommand: cd server && node dist/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      - key: DB_HOST
+        fromDatabase:
+          name: travel-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: travel-db
+          property: port
+      - key: DB_USER
+        fromDatabase:
+          name: travel-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: travel-db
+          property: password
+      - key: DB_NAME
+        fromDatabase:
+          name: travel-db
+          property: database
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRE
+        value: 7d
+      - key: AZURE_STORAGE_CONNECTION_STRING
+        sync: false
+      - key: AZURE_STORAGE_CONTAINER_NAME
+        value: travel-plan-images
+
+databases:
+  - name: travel-db
+    plan: free
+    region: singapore
