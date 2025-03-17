@@ -1,7 +1,104 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import { pool } from '../config/db';
-import { generateToken, generateRefreshToken } from '../utils/jwtUtils';
+
+// 生成JWT Token
+const generateToken = (id: number, role: string): string => {
+  return jwt.sign({ id, role }, process.env.JWT_SECRET || 'defaultsecret', {
+    expiresIn: '30d',
+  });
+};
+
+// 生成刷新令牌
+const generateRefreshToken = (id: number, role: string): string => {
+  return jwt.sign({ id, role }, process.env.JWT_REFRESH_SECRET || 'refreshsecret', {
+    expiresIn: '60d',
+  });
+};
+
+// 確保表存在並創建默認用戶
+const ensureDefaultUsersExist = async () => {
+  try {
+    // 檢查 users 表是否存在
+    const usersTableCheck = await pool.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'users'
+      );
+    `);
+
+    // 如果不存在，創建基本表結構
+    if (!usersTableCheck.rows[0].exists) {
+      console.log('創建用戶表...');
+      await pool.query(`
+        CREATE TABLE users (
+          id SERIAL PRIMARY KEY,
+          username VARCHAR(50) NOT NULL,
+          email VARCHAR(100) UNIQUE NOT NULL,
+          password VARCHAR(255) NOT NULL,
+          role VARCHAR(20) DEFAULT 'user',
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
+      console.log('用戶表創建成功');
+      
+      // 檢查 user_settings 表
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS user_settings (
+          id SERIAL PRIMARY KEY,
+          user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+          theme_mode VARCHAR(20) DEFAULT 'light',
+          theme_color VARCHAR(20) DEFAULT '#000',
+          font_size VARCHAR(10) DEFAULT '16px',
+          sidebar_collapsed BOOLEAN DEFAULT false,
+          language VARCHAR(10) DEFAULT 'zh',
+          timezone VARCHAR(50) DEFAULT 'Asia/Shanghai',
+          date_format VARCHAR(20) DEFAULT 'YYYY-MM-DD',
+          time_format VARCHAR(20) DEFAULT 'HH:mm:ss',
+          notifications_email BOOLEAN DEFAULT true,
+          notifications_system BOOLEAN DEFAULT true,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
+    }
+
+    // 檢查是否有任何用戶
+    const userCount = await pool.query('SELECT COUNT(*) FROM users');
+    
+    if (parseInt(userCount.rows[0].count) === 0) {
+      console.log('創建默認用戶...');
+      
+      // 創建管理員用戶
+      const adminSalt = await bcrypt.genSalt(10);
+      const adminPassword = await bcrypt.hash('admin123', adminSalt);
+      
+      await pool.query(
+        'INSERT INTO users (username, email, password, role) VALUES ($1, $2, $3, $4)',
+        ['admin', 'admin@example.com', adminPassword, 'admin']
+      );
+      
+      // 創建測試用戶
+      const testSalt = await bcrypt.genSalt(10);
+      const testPassword = await bcrypt.hash('password123', testSalt);
+      
+      await pool.query(
+        'INSERT INTO users (username, email, password, role) VALUES ($1, $2, $3, $4)',
+        ['test', 'test@example.com', testPassword, 'user']
+      );
+      
+      console.log('默認用戶創建成功');
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('創建默認用戶時出錯:', error);
+    return false;
+  }
+};
 
 // @desc   註冊新用戶
 // @route  POST /api/users/register
@@ -50,6 +147,7 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
       email: user.email,
       role: user.role,
       token: generateToken(user.id, user.role),
+      refreshToken: generateRefreshToken(user.id, user.role),
     });
   } catch (error) {
     console.error('註冊用戶時出錯:', error);
@@ -69,6 +167,9 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
   }
 
   try {
+    // 檢查是否需要創建默認用戶
+    await ensureDefaultUsersExist();
+    
     // 檢查用戶是否存在
     const result = await pool.query(
       'SELECT * FROM users WHERE email = $1',
@@ -244,6 +345,8 @@ export const updateUserProfile = async (req: Request, res: Response): Promise<vo
       username: user.username,
       email: user.email,
       role: user.role,
+      token: generateToken(user.id, user.role),
+      refreshToken: generateRefreshToken(user.id, user.role),
     });
   } catch (error) {
     console.error('更新用戶資料時出錯:', error);
