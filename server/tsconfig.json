@@ -1,12 +1,16 @@
 {
   "compilerOptions": {
-    "target": "es2016",
+    "target": "es2017",
     "module": "commonjs",
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
+    "forceConsistentCasingInFileNames": false,
+    "strict": false,
     "skipLibCheck": true,
-    "outDir": "dist"
+    "noImplicitAny": false,
+    "noEmitOnError": true,
+    "allowJs": true,
+    "outDir": "dist",
+    "lib": ["es2017", "dom"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]
