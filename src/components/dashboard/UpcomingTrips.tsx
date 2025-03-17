@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Empty, Spin } from 'antd';
 
 interface Trip {
   id: string;
@@ -7,26 +8,47 @@ interface Trip {
   destination: string;
   startDate: string;
   endDate: string;
+  status?: string;
 }
 
 const UpcomingTrips: React.FC = () => {
-  // 模擬從 localStorage 獲取的數據
-  const upcomingTrips: Trip[] = [
-    {
-      id: '1',
-      title: '東京商務出差',
-      destination: '日本，東京',
-      startDate: '2023-11-10',
-      endDate: '2023-11-15',
-    },
-    {
-      id: '2',
-      title: '峇里島度假',
-      destination: '印尼，峇里島',
-      startDate: '2023-12-20',
-      endDate: '2023-12-31',
-    },
-  ];
+  const [upcomingTrips, setUpcomingTrips] = useState<Trip[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // 從 localStorage 獲取旅行數據
+    const loadTrips = () => {
+      try {
+        const tripsData = localStorage.getItem('trips');
+        if (tripsData) {
+          const allTrips: Trip[] = JSON.parse(tripsData);
+          
+          // 過濾未來的旅程（今天日期之後開始的旅程）
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          
+          const future = allTrips.filter(trip => {
+            const startDate = new Date(trip.startDate);
+            return startDate >= today;
+          });
+          
+          // 按開始日期排序
+          const sorted = future.sort((a, b) => {
+            return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
+          });
+          
+          // 只顯示最近的 5 個旅程
+          setUpcomingTrips(sorted.slice(0, 5));
+        }
+      } catch (error) {
+        console.error('載入旅程資料時發生錯誤:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadTrips();
+  }, []);
 
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
@@ -36,6 +58,14 @@ const UpcomingTrips: React.FC = () => {
       day: 'numeric',
     });
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center p-6">
+        <Spin tip="載入旅程資料..." />
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
@@ -61,18 +91,20 @@ const UpcomingTrips: React.FC = () => {
           ))}
         </div>
       ) : (
-        <div className="text-center p-4">
-          <p className="text-gray-500 mb-2">沒有即將到來的旅程</p>
+        <Empty 
+          description="沒有即將到來的旅程" 
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+        >
           <Link
             to="/trips/new"
             className="inline-block text-blue-500 hover:text-blue-700 text-sm"
           >
             建立新旅程
           </Link>
-        </div>
+        </Empty>
       )}
     </div>
   );
 };
 
-export default UpcomingTrips; 
+export default UpcomingTrips;
