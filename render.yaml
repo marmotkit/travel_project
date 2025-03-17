@@ -10,7 +10,7 @@ services:
         fromService:
           name: travel-plan-backend
           type: web
-          property: url
+          property: host
 
   # 後端 API 服務配置
   - type: web
@@ -49,8 +49,8 @@ services:
         generateValue: true
       - key: JWT_EXPIRE
         value: 7d
-      - key: DefaultEndpointsProtocol=https;AccountName=photoalbumstore;AccountKey=oSpOiE0VY+39aV3VxxmayxEcgVVS1+VnJGCEmWGysBxmgzDfnvW7CTIpNokk7n6c8ZUkmmMjbCyl+AStvLObhg==;EndpointSuffix=core.windows.net
-        sync: false
+      - key: AZURE_STORAGE_CONNECTION_STRING
+        value: "DefaultEndpointsProtocol=https;AccountName=photoalbumstore;AccountKey=oSpOiE0VY+39aV3VxxmayxEcgVVS1+VnJGCEmWGysBxmgzDfnvW7CTIpNokk7n6c8ZUkmmMjbCyl+AStvLObhg==;EndpointSuffix=core.windows.net"
       - key: AZURE_STORAGE_CONTAINER_NAME
         value: travel-plan-images
 
