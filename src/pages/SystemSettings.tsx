@@ -112,6 +112,7 @@ const SystemSettings: React.FC = () => {
   };
 
   // 關於系統表單提交
+  const [aboutForm] = Form.useForm();
   const handleAboutSubmit = (values: SystemSettingsType['about']) => {
     // 顯示載入中
     setLoading(true);
@@ -123,7 +124,9 @@ const SystemSettings: React.FC = () => {
       contactEmail: values.contactEmail,
       websiteUrl: values.websiteUrl,
       description: values.description,
-      copyright: values.copyright
+      copyright: values.copyright,
+      version: values.version,
+      lastUpdated: values.lastUpdated,
     };
 
     try {
@@ -162,6 +165,13 @@ const SystemSettings: React.FC = () => {
       setLoading(false);
     }
   };
+
+  // 當設定更新時重置表單的值
+  useEffect(() => {
+    if (aboutForm) {
+      aboutForm.setFieldsValue(settings.about);
+    }
+  }, [settings.about, aboutForm]);
 
   // 側邊欄折疊設定變更處理
   const handleSidebarCollapsedChange = (checked: boolean) => {
@@ -627,6 +637,7 @@ const SystemSettings: React.FC = () => {
               layout="vertical"
               initialValues={settings.about}
               onFinish={handleAboutSubmit}
+              form={aboutForm}
             >
               <Form.Item
                 name="description"
@@ -638,14 +649,20 @@ const SystemSettings: React.FC = () => {
               
               <Divider>系統資訊</Divider>
               
-              <Form.Item label="版本號">
-                <Input value={settings.about.version} disabled />
-                <Text type="secondary">版本號無法手動修改，將隨系統更新自動變更</Text>
+              <Form.Item
+                name="version"
+                label="版本號"
+                rules={[{ required: true, message: '請輸入版本號' }]}
+              >
+                <Input placeholder="例如：1.4.6" />
               </Form.Item>
               
-              <Form.Item label="最後更新日期">
-                <Input value={new Date(settings.about.lastUpdated).toLocaleDateString()} disabled />
-                <Text type="secondary">更新日期無法手動修改，將隨系統更新自動變更</Text>
+              <Form.Item
+                name="lastUpdated"
+                label="最後更新日期"
+                rules={[{ required: true, message: '請輸入最後更新日期' }]}
+              >
+                <Input placeholder="例如：2025-03-17" />
               </Form.Item>
               
               <Divider>開發者資訊</Divider>
@@ -675,7 +692,7 @@ const SystemSettings: React.FC = () => {
                 rules={[
                   { required: true, message: '請輸入官方網站URL' },
                   { 
-                    pattern: /^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/,
+                    pattern: /^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)$/,
                     message: '請輸入有效的網址，例如：https://travelplan.example.com'
                   }
                 ]}
