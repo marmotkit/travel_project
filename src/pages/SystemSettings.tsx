@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Tabs, Card, Form, Switch, Radio, Select, Input, Button, Divider, Typography, Space, ColorPicker, notification } from 'antd';
+import { Tabs, Card, Form, Switch, Radio, Select, Input, Button, Divider, Typography, Space, ColorPicker, Alert, message } from 'antd';
+import { CheckCircleOutlined, SaveOutlined } from '@ant-design/icons';
 import type { TabsProps } from 'antd';
 import { useSettings } from '../contexts/SettingsContext';
 import type { SystemSettings as SystemSettingsType } from '../contexts/SettingsContext';
@@ -14,6 +15,8 @@ const SystemSettings: React.FC = () => {
   const { settings, updateTheme, updateLocalization, updateNotifications, updateDataManagement, resetSettings, applyTheme, setSidebarCollapsed } = useSettings();
   const [resetConfirm, setResetConfirm] = useState(false);
   const [isAdmin, setIsAdmin] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
   
   // 切換管理員模式
   const handleToggleAdmin = () => {
@@ -23,6 +26,9 @@ const SystemSettings: React.FC = () => {
   // 主題設定表單提交
   const onThemeFormFinish = (values: any) => {
     console.log('提交主題設定表單:', values);
+    
+    // 設置按鈕為載入狀態
+    setLoading(true);
     
     try {
       // 更新主題設定 (不包含側邊欄設定，因為側邊欄設定有專門的處理方法)
@@ -43,54 +49,65 @@ const SystemSettings: React.FC = () => {
         sidebarCollapsed: settings.theme.sidebarCollapsed,
       });
       
-      // 強制顯示成功提示訊息（使用延遲確保在DOM更新後顯示）
+      // 顯示成功提示
+      setSaveSuccess(true);
+      
+      // 5秒後自動隱藏成功提示
       setTimeout(() => {
-        notification.destroy(); // 先清除所有現有通知
-        notification.success({
-          message: '設定已儲存',
-          description: '主題設定已成功更新',
-          placement: 'topRight',
-          duration: 4,
-          style: { zIndex: 9999 } // 確保通知顯示在最上層
-        });
-      }, 300);
+        setSaveSuccess(false);
+      }, 5000);
       
       console.log('主題設定更新成功');
     } catch (error) {
       console.error('更新主題設定時發生錯誤:', error);
-      notification.error({
-        message: '設定儲存失敗',
-        description: '主題設定更新過程中發生錯誤',
-        placement: 'topRight',
-        duration: 4,
+      message.error({
+        content: '主題設定儲存失敗',
+        duration: 3,
+        style: {
+          marginTop: '20vh',
+        }
       });
+    } finally {
+      // 不論成功或失敗，1秒後重設按鈕狀態
+      setTimeout(() => {
+        setLoading(false);
+      }, 1000);
     }
   };
 
   // 本地化設定表單提交
   const handleLocalizationSubmit = (values: SystemSettingsType['localization']) => {
     updateLocalization(values);
-    notification.success({
-      message: '設定已更新',
-      description: '語言與地區設定已成功儲存',
+    message.success({
+      content: '語言與地區設定已成功儲存',
+      duration: 3,
+      style: {
+        marginTop: '20vh',
+      }
     });
   };
 
   // 通知設定表單提交
   const handleNotificationsSubmit = (values: SystemSettingsType['notifications']) => {
     updateNotifications(values);
-    notification.success({
-      message: '設定已更新',
-      description: '通知設定已成功儲存',
+    message.success({
+      content: '通知設定已成功儲存',
+      duration: 3,
+      style: {
+        marginTop: '20vh',
+      }
     });
   };
 
   // 數據管理設定表單提交
   const handleDataManagementSubmit = (values: SystemSettingsType['dataManagement']) => {
     updateDataManagement(values);
-    notification.success({
-      message: '設定已更新',
-      description: '資料管理設定已成功儲存',
+    message.success({
+      content: '資料管理設定已成功儲存',
+      duration: 3,
+      style: {
+        marginTop: '20vh',
+      }
     });
   };
 
@@ -99,9 +116,12 @@ const SystemSettings: React.FC = () => {
     // 使用專門的方法設置側邊欄折疊狀態
     setSidebarCollapsed(checked);
     
-    notification.success({
-      message: '側邊欄設定已更新',
-      description: `側邊欄預設摺疊已設為${checked ? '開啟' : '關閉'}`,
+    message.success({
+      content: `側邊欄預設摺疊已設為${checked ? '開啟' : '關閉'}`,
+      duration: 3,
+      style: {
+        marginTop: '20vh',
+      }
     });
     
     console.log('SystemSettings - 側邊欄折疊設定變更:', checked);
@@ -111,9 +131,12 @@ const SystemSettings: React.FC = () => {
   const handleResetSettings = () => {
     if (resetConfirm) {
       resetSettings();
-      notification.success({
-        message: '設定已重置',
-        description: '所有設定已恢復為預設值',
+      message.success({
+        content: '所有設定已恢復為預設值',
+        duration: 3,
+        style: {
+          marginTop: '20vh',
+        }
       });
       setResetConfirm(false);
     } else {
@@ -137,9 +160,12 @@ const SystemSettings: React.FC = () => {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
-    notification.success({
-      message: '設定已匯出',
-      description: '系統設定已成功匯出為JSON檔案',
+    message.success({
+      content: '系統設定已成功匯出為JSON檔案',
+      duration: 3,
+      style: {
+        marginTop: '20vh',
+      }
     });
   };
 
@@ -159,22 +185,31 @@ const SystemSettings: React.FC = () => {
             updateNotifications(importedSettings.notifications);
             updateDataManagement(importedSettings.dataManagement);
             
-            notification.success({
-              message: '設定已匯入',
-              description: '系統設定已成功從檔案匯入',
+            message.success({
+              content: '系統設定已成功從檔案匯入',
+              duration: 3,
+              style: {
+                marginTop: '20vh',
+              }
             });
           }
         } catch (error) {
-          notification.error({
-            message: '匯入失敗',
-            description: '無法解析設定檔案，請確認檔案格式正確',
+          message.error({
+            content: '無法解析設定檔案，請確認檔案格式正確',
+            duration: 3,
+            style: {
+              marginTop: '20vh',
+            }
           });
         }
       };
       fileReader.onerror = () => {
-        notification.error({
-          message: '匯入失敗',
-          description: '讀取檔案時發生錯誤',
+        message.error({
+          content: '讀取檔案時發生錯誤',
+          duration: 3,
+          style: {
+            marginTop: '20vh',
+          }
         });
       };
     }
@@ -244,15 +279,27 @@ const SystemSettings: React.FC = () => {
             </Form.Item>
 
             <Form.Item>
-              <Button 
-                type="primary" 
-                htmlType="submit"
-                size="large"
-                className="save-settings-btn"
-                style={{ backgroundColor: settings.theme.primaryColor, borderColor: settings.theme.primaryColor }}
-              >
-                儲存主題設定
-              </Button>
+              <Space direction="vertical" style={{ width: '100%' }}>
+                {saveSuccess && (
+                  <Alert
+                    message="設定已儲存"
+                    description="主題設定已成功更新並應用"
+                    type="success"
+                    showIcon
+                    closable
+                    onClose={() => setSaveSuccess(false)}
+                    style={{ marginBottom: 16 }}
+                  />
+                )}
+                <Button 
+                  type="primary" 
+                  htmlType="submit"
+                  loading={loading}
+                  icon={<SaveOutlined />}
+                >
+                  儲存主題設定
+                </Button>
+              </Space>
             </Form.Item>
           </Form>
         </Card>
